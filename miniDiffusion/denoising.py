@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tqdm import tqdm
 
-from miniDiffusion.params import alpha, alpha_bar, timesteps
+from miniDiffusion.params import alpha, alpha_bar, timesteps, beta
 from miniDiffusion.registry import save_gif
 
 # Denoising Diffusion Probabilistic Models (DDPM)

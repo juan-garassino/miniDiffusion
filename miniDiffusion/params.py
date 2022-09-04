@@ -1,3 +1,6 @@
+import numpy as np
+import tensorflow as tf
+
 timesteps = 400
 
 # create a fixed beta schedule

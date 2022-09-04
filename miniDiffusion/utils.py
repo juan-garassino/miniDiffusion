@@ -1,4 +1,7 @@
 import numpy as np
+import tensorflow as tf
+
+from miniDiffusion.params import one_minus_sqrt_alpha_bar, sqrt_alpha_bar, timesteps
 
 # this function will help us set the RNG key for Numpy
 def set_key(key):

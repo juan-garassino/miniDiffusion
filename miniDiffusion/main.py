@@ -1,35 +1,14 @@
-#!pip install tensorflow --quiet
-#!pip install tensorflow_datasets --quiet
-#!pip install tensorflow_addons --quiet
-#!pip install einops --quiet
-
-
-import numpy as np
-
-
-from tensorflow import keras, einsum
-
-
-from tensorflow.keras import Model, Sequential
-from tensorflow.keras.layers import Layer
-from tensorflow.keras.utils import normalize
-import tensorflow.keras.layers as nn
-import tensorflow_addons as tfa
-import tensorflow_datasets as tfds
-import tensorflow as tf
-
-from einops import rearrange
-from einops.layers.tensorflow import Rearrange
-from functools import partial
-
 from miniDiffusion.model import Unet
 from miniDiffusion.utils import generate_timestamp, forward_noise
 from miniDiffusion.losses import loss_fn
 
+from tensorflow.keras.optimizers import Adam
+import numpy as np
+import tensorflow as tf
+
 
 # Suppressing tf.hub warnings
 tf.get_logger().setLevel("ERROR")
-
 
 # create our unet model
 unet = Unet(channels=1)
@@ -52,7 +31,7 @@ test_timestamps = generate_timestamp(0, 1)
 k = unet(test_images, test_timestamps)
 
 # create our optimizer, we will use adam with a Learning rate of 1e-4
-opt = keras.optimizers.Adam(learning_rate=1e-4)
+opt = Adam(learning_rate=1e-4)
 
 
 rng = 0

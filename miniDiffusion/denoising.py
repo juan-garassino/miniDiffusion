@@ -54,14 +54,15 @@ if __name__ == "__main__":
             img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
             if i % 25 == 0:
-                plt.imshow(
-                    np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8), cmap="gray"
-                )
+                plt.imshow(np.array(
+                    np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8),
+                           cmap="gray")
                 plt.show()
 
         save_gif(img_list + ([img_list[-1]] * 100), "ddpm.gif", interval=20)
 
-        plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8))
+        plt.imshow(
+            np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
         plt.show()
 
     if os.environ["DENOIGING"] == "ddim":
@@ -96,5 +97,7 @@ if __name__ == "__main__":
                 )
                 plt.show()
 
-        plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8), cmap="gray")
+        plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255),
+                            np.uint8)[:, :, 0],
+                   cmap="gray")
         plt.show()

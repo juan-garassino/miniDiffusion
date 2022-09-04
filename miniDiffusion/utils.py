@@ -1,3 +1,5 @@
+import numpy as np
+
 # this function will help us set the RNG key for Numpy
 def set_key(key):
     np.random.seed(key)

@@ -1,6 +1,11 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import tensorflow as tf
+from tqdm import tqdm
+
+from miniDiffusion.params import alpha, alpha_bar, timesteps
+from miniDiffusion.registry import save_gif
 
 # Denoising Diffusion Probabilistic Models (DDPM)
 

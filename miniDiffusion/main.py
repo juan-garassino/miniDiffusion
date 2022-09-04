@@ -3,15 +3,13 @@
 #!pip install tensorflow_addons --quiet
 #!pip install einops --quiet
 
-import os
+
 import numpy as np
-import matplotlib.pyplot as plt
-from tqdm import tqdm
-from PIL import Image
-from inspect import isfunction
-import math
+
 
 from tensorflow import keras, einsum
+
+
 from tensorflow.keras import Model, Sequential
 from tensorflow.keras.layers import Layer
 from tensorflow.keras.utils import normalize
@@ -23,6 +21,11 @@ import tensorflow as tf
 from einops import rearrange
 from einops.layers.tensorflow import Rearrange
 from functools import partial
+
+from miniDiffusion.model import Unet
+from miniDiffusion.utils import generate_timestamp, forward_noise
+from miniDiffusion.losses import loss_fn
+
 
 # Suppressing tf.hub warnings
 tf.get_logger().setLevel("ERROR")

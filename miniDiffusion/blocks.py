@@ -75,7 +75,7 @@ class LinearAttention(Layer):
         self.to_out = Sequential(
             [
                 nn.Conv2D(filters=dim, kernel_size=1, strides=1),
-                nn.LayerNormalization(axis=dim),
+                nn.LayerNormalization(axis=3),
             ]
         )
 

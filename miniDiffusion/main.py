@@ -1,12 +1,13 @@
 from miniDiffusion.model import Unet
 from miniDiffusion.utils import generate_timestamp, forward_noise
 from miniDiffusion.losses import loss_fn
+from miniDiffusion.preprocess import get_datasets
 
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 import tensorflow as tf
 
-
+dataset = get_datasets()
 # Suppressing tf.hub warnings
 tf.get_logger().setLevel("ERROR")
 

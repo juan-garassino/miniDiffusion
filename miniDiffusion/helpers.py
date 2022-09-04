@@ -64,8 +64,7 @@ class PreNorm(Layer):
     def __init__(self, dim, fn):
         super(PreNorm, self).__init__()
         self.fn = fn
-        # self.norm = normalize(dim)
-        self.norm = nn.LayerNormalization(axis=dim)
+        self.norm = nn.LayerNormalization(axis=3)
 
     def call(self, x, training=True):
         x = self.norm(x)

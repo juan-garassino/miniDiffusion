@@ -61,6 +61,28 @@ def denoising_diffusion_probabilistic_models(unet):
             plt.imshow(np.array(
                 np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8),
                        cmap="gray")
+
+            out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
+                           "snapshots")
+
+            if int(os.environ.get("COLAB")) == 1:
+
+                out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
+                                    "results", "miniDiffusion", "snapshots")
+
+            Manager.make_directory(out_dir)
+
+            now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+            picture_name = "{}/image[{}].png".format(out_dir, now)
+
+            plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :,
+                                                                            0],
+                    cmap="gray")
+
+            print("\n🔽 " + Fore.BLUE +
+                f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
+
             plt.show()
 
     out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniDiffusion",
@@ -121,6 +143,28 @@ def denoising_diffusion_implicit_models(unet):
                 ),
                 cmap="gray",
             )
+
+            out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
+                           "snapshots")
+
+            if int(os.environ.get("COLAB")) == 1:
+
+                out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
+                                    "results", "miniDiffusion", "snapshots")
+
+            Manager.make_directory(out_dir)
+
+            now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+            picture_name = "{}/image[{}].png".format(out_dir, now)
+
+            plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :,
+                                                                            0],
+                    cmap="gray")
+
+            print("\n🔽 " + Fore.BLUE +
+                f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
+
             plt.show()
 
     out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",

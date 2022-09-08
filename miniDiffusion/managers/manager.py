@@ -17,12 +17,12 @@ class Manager():
 
         self.network = network
         self.checkpoint = Checkpoint(unet=self.network)
-        self.directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDifussion',
+        self.directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDiffusion',
                                'checkpoints')
 
         if int(os.environ.get('COLAB')) == 1:
             self.directory = os.path.join(os.environ.get('HOME'), '..', 'content',
-                                          'results', 'miniDifussion',
+                                          'results', 'miniDiffusion',
                                           'checkpoints')
 
         self.make_directory(self.directory)

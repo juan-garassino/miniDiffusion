@@ -1,4 +1,4 @@
-from miniDiffusion.utils.helpers import SiLU, exists, Identity
+from miniDiffusion.models.helpers import SiLU, exists, Identity
 
 import tensorflow.keras.layers as nn
 import tensorflow_addons as tfa

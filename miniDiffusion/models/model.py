@@ -1,7 +1,7 @@
 import tensorflow.keras.layers as nn
 import tensorflow_addons as tfa
 
-from miniDiffusion.utils.helpers import (
+from miniDiffusion.models.helpers import (
     default,
     SinusoidalPosEmb,
     GELU,

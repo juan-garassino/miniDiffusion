@@ -4,6 +4,9 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from miniDiffusion.managers.registry import save_gif
+import os
+from datetime import datetime
+from colorama import Fore, Style
 
 # Denoising Diffusion Probabilistic Models (DDPM)
 
@@ -55,10 +58,26 @@ def denoising_diffusion_probabilistic_models(unet):
                        cmap="gray")
             plt.show()
 
-    save_gif(img_list + ([img_list[-1]] * 100), "ddpm.gif", interval=20)
+    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
+                           "snapshots")
+
+    if int(os.environ.get("COLAB")) == 1:
+
+        out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
+                               "results", "miniGan", "snapshots")
+
+    now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+    picture_name = "{}/animation[{}].gif".format(out_dir, now)
+
+    save_gif(img_list + ([img_list[-1]] * 100), picture_name, interval=20)
 
     plt.imshow(np.array(
         np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
+
+    print("\n🔽 " + Fore.BLUE +
+          f"Generated picture {picture_name} at {out_dir}" + Style.RESET_ALL)
+
     plt.show()
 
 
@@ -94,7 +113,25 @@ def denoising_diffusion_implicit_models(unet):
             )
             plt.show()
 
+    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
+                           "snapshots")
+
+    if int(os.environ.get("COLAB")) == 1:
+
+        out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
+                               "results", "miniGan", "snapshots")
+
+    now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+    picture_name = "{}/image[{}].png".format(out_dir, now)
+
     plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :,
                                                                        0],
                cmap="gray")
+
+    print("\n🔽 " + Fore.BLUE +
+          f"Generated picture {picture_name} @ {out_dir}" + Style.RESET_ALL)
+
+    plt.savefig(picture_name)
+
     plt.show()

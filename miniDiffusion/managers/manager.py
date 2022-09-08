@@ -17,6 +17,8 @@ class Manager():
         self.directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDifussion',
                                'checkpoints')
 
+        self.make_directory(self.directory)
+
         if int(os.environ.get('COLAB')) == 1:
             self.directory = os.path.join(os.environ.get('HOME'), '..', 'content',
                                           'results', 'miniDifussion',

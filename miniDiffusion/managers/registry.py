@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
-from miniDiffusion.utils import forward_noise
+from miniDiffusion.utils.utils import forward_noise
 from colorama import Fore, Style
 
 

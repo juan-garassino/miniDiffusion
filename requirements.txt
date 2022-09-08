@@ -34,3 +34,4 @@ tensorflow_datasets
 tensorflow_addons
 einops
 colorama
+matplotlib

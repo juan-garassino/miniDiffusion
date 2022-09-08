@@ -54,10 +54,8 @@ pypi_test:
 pypi:
 	@twine upload dist/* -u $(PYPI_USERNAME)
 
-# MINE
-
 run_model:
 	python -m miniDiffusion.main
 
-denoise:
-  python -m miniDiffusion.managers.denoiser
+denoiser:
+	python -m miniDiffusion.managers.denoiser

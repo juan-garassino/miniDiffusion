@@ -1,14 +1,11 @@
-import os
-import matplotlib.pyplot as plt
 import numpy as np
-import tensorflow as tf
+from miniDiffusion.utils.params import alpha, alpha_bar, beta, timesteps
 from tqdm import tqdm
-
-from miniDiffusion.utils.params import alpha, alpha_bar, timesteps, beta
+import matplotlib.pyplot as plt
+import tensorflow as tf
 from miniDiffusion.managers.registry import save_gif
 
 # Denoising Diffusion Probabilistic Models (DDPM)
-
 
 def ddpm(x_t, pred_noise, t):
     alpha_t = np.take(alpha, t)
@@ -40,64 +37,64 @@ def ddim(x_t, pred_noise, t, sigma_t):
     return pred
 
 
-if __name__ == "__main__":
-    if os.environ["DENOISING"] == "ddpm":
+# SAMPLES
+def denoising_diffusion_probabilistic_models(unet):
+    x = tf.random.normal((1, 32, 32, 1))
+    img_list = []
+    img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        x = tf.random.normal((1, 32, 32, 1))
-        img_list = []
+    for i in tqdm(range(timesteps - 1)):
+        t = np.expand_dims(np.array(timesteps - i - 1, np.int32), 0)
+        pred_noise = unet(x, t)
+        x = ddpm(x, pred_noise, t)
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        for i in tqdm(range(timesteps - 1)):
-            t = np.expand_dims(np.array(timesteps - i - 1, np.int32), 0)
-            pred_noise = unet(x, t)
-            x = ddpm(x, pred_noise, t)
-            img_list.append(np.squeeze(np.squeeze(x, 0), -1))
+        if i % 25 == 0:
+            plt.imshow(np.array(
+                np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8),
+                       cmap="gray")
+            plt.show()
 
-            if i % 25 == 0:
-                plt.imshow(np.array(
-                    np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8),
-                           cmap="gray")
-                plt.show()
+    save_gif(img_list + ([img_list[-1]] * 100), "ddpm.gif", interval=20)
 
-        save_gif(img_list + ([img_list[-1]] * 100), "ddpm.gif", interval=20)
+    plt.imshow(np.array(
+        np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
+    plt.show()
 
-        plt.imshow(
-            np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
-        plt.show()
 
-    if os.environ["DENOISING"] == "ddim":
-        # Define number of inference loops to run
-        inference_timesteps = 10
+def denoising_diffusion_implicit_models(unet):
 
-        # Create a range of inference steps that the output should be sampled at
-        inference_range = range(0, timesteps, timesteps // inference_timesteps)
+    # Define number of inference loops to run
+    inference_timesteps = 10
 
-        x = tf.random.normal((1, 32, 32, 1))
-        img_list = []
+    # Create a range of inference steps that the output should be sampled at
+    inference_range = range(0, timesteps, timesteps // inference_timesteps)
+
+    x = tf.random.normal((1, 32, 32, 1))
+    img_list = []
+    img_list.append(np.squeeze(np.squeeze(x, 0), -1))
+    # Iterate over inference_timesteps
+    for index, i in tqdm(enumerate(reversed(range(inference_timesteps))),
+                         total=inference_timesteps):
+        t = np.expand_dims(inference_range[i], 0)
+
+        pred_noise = unet(x, t)
+
+        x = ddim(x, pred_noise, t, 0)
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        # Iterate over inference_timesteps
-        for index, i in tqdm(
-            enumerate(reversed(range(inference_timesteps))), total=inference_timesteps
-        ):
-            t = np.expand_dims(inference_range[i], 0)
+        if index % 1 == 0:
+            plt.imshow(
+                np.array(
+                    np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0,
+                            255),
+                    np.uint8,
+                ),
+                cmap="gray",
+            )
+            plt.show()
 
-            pred_noise = unet(x, t)
-
-            x = ddim(x, pred_noise, t, 0)
-            img_list.append(np.squeeze(np.squeeze(x, 0), -1))
-
-            if index % 1 == 0:
-                plt.imshow(
-                    np.array(
-                        np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0, 255),
-                        np.uint8,
-                    ),
-                    cmap="gray",
-                )
-                plt.show()
-
-        plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255),
-                            np.uint8)[:, :, 0],
-                   cmap="gray")
-        plt.show()
+    plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :,
+                                                                       0],
+               cmap="gray")
+    plt.show()

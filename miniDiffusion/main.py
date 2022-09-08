@@ -11,12 +11,10 @@ from miniDiffusion.managers.denoiser import denoising_diffusion_implicit_models,
 from miniDiffusion.managers.manager import Manager
 
 from miniDiffusion.utils.utils import generate_timestamp, forward_noise
-from miniDiffusion.data.data import get_datasets
 
 from tensorflow import GradientTape, get_logger
 from tensorflow.keras.utils import Progbar
 
-dataset = get_datasets()
 
 # Suppressing tf.hub warnings
 get_logger().setLevel("ERROR")
@@ -24,9 +22,11 @@ get_logger().setLevel("ERROR")
 # create our unet model
 unet = Unet(channels=1)
 
-manager = Manager(unet)
+manager = Manager(unet, os.environ.get('DATA'))
 
 manager.load_model()
+
+dataset = manager.get_datasets()
 
 # initialize the model in the memory of our GPU
 test_images = np.ones([1, 32, 32, 1])

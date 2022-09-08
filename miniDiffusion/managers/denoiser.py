@@ -66,6 +66,8 @@ def denoising_diffusion_probabilistic_models(unet):
         out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
                                "results", "miniGan", "snapshots")
 
+    os.mkdir(out_dir)
+
     now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 
     picture_name = "{}/animation[{}].gif".format(out_dir, now)

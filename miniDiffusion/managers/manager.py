@@ -13,7 +13,7 @@ class Manager():
 
         if int(os.environ.get('COLAB')) == 1:
             self.directory = os.path.join(os.environ.get('HOME'), '..', 'content',
-                                          'Results', 'miniDifussion',
+                                          'results', 'miniDifussion',
                                           'checkpoints')
 
         self.checkpoint_manager = CheckpointManager(self.checkpoint, self.directory,

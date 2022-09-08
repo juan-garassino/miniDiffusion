@@ -81,7 +81,7 @@ def denoising_diffusion_probabilistic_models(unet):
                     cmap="gray")
 
             print("\n🔽 " + Fore.BLUE +
-                f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
+                f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + "\n"+ Style.RESET_ALL)
 
             plt.show()
 
@@ -105,7 +105,8 @@ def denoising_diffusion_probabilistic_models(unet):
         np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
 
     print("\n🔽 " + Fore.BLUE +
-          f"Generated git {picture_name.split('/')[-1]} at {out_dir}" + Style.RESET_ALL)
+          f"Generated git {picture_name.split('/')[-1]} at {out_dir}" + "\n" +
+          Style.RESET_ALL)
 
     plt.show()
 
@@ -163,7 +164,7 @@ def denoising_diffusion_implicit_models(unet):
                     cmap="gray")
 
             print("\n🔽 " + Fore.BLUE +
-                f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
+                f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + "\n" + Style.RESET_ALL)
 
             plt.show()
 

@@ -13,7 +13,6 @@ from colorama import Fore, Style
 dataset = get_datasets()
 
 
-
 # Suppressing tf.hub warnings
 tf.get_logger().setLevel("ERROR")
 
@@ -29,9 +28,12 @@ if ckpt_manager.latest_checkpoint:
     ckpt.restore(ckpt_manager.latest_checkpoint)
     start_interation = int(ckpt_manager.latest_checkpoint.split("-")[-1])
 
-    print("\n🔽 " + Fore.BLUE +
-          "Restored from {}".format(ckpt_manager.latest_checkpoint) +
-          Style.RESET_ALL)
+    print(
+        "\n🔽 "
+        + Fore.BLUE
+        + "Restored from {}".format(ckpt_manager.latest_checkpoint)
+        + Style.RESET_ALL
+    )
 
 else:
 
@@ -70,10 +72,13 @@ for epoch in range(1, epochs + 1):
 
     start = time.time()
     # this is cool utility in Tensorflow that will create a nice looking progress bar
-    bar = tf.keras.utils.Progbar(len(dataset) - 1) # keras progress bar!!
+    bar = tf.keras.utils.Progbar(len(dataset) - 1)  # keras progress bar!!
     losses = []
 
-    print("\n⏩ " + Fore.MAGENTA + f"Training diffusion model for epoch {epoch}\n" + "\n", end="")
+    print(
+        "\n⏩ " + Fore.MAGENTA + f"Training diffusion model for epoch {epoch}\n" + "\n",
+        end="",
+    )
 
     for i, batch in enumerate(iter(dataset)):
         # run the training loop
@@ -81,14 +86,20 @@ for epoch in range(1, epochs + 1):
         losses.append(loss)
         bar.update(i, values=[("loss", loss)])
 
-    print(Style.RESET_ALL + '\n')
+    print(Style.RESET_ALL + "\n")
 
     avg = np.mean(losses)
 
-    print("\n📶 " + Fore.CYAN + f"Average loss for epoch {epoch}/{epochs}: {avg}" +
-          Style.RESET_ALL)
+    print(
+        "\n📶 "
+        + Fore.CYAN
+        + f"Average loss for epoch {epoch}/{epochs}: {avg}"
+        + Style.RESET_ALL
+    )
 
-    print("\n✅ " + Fore.CYAN +
-          "Time for epoch {} is {} sec".format(epoch + 1,
-                                               time.time() - start) +
-          Style.RESET_ALL)
+    print(
+        "\n✅ "
+        + Fore.CYAN
+        + "Time for epoch {} is {} sec".format(epoch + 1, time.time() - start)
+        + Style.RESET_ALL
+    )

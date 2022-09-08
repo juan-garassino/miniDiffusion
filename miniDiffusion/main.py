@@ -68,6 +68,7 @@ def train_step(batch):
 
 
 epochs = 10
+
 for epoch in range(1, epochs + 1):
 
     start = time.time()
@@ -76,7 +77,7 @@ for epoch in range(1, epochs + 1):
     losses = []
 
     print(
-        "\n⏩ " + Fore.MAGENTA + f"Training diffusion model for epoch {epoch}\n" + "\n",
+        "\n⏩ " + Fore.MAGENTA + f"Training diffusion model for epoch {epoch} of {epochs}\n" + "\n",
         end="",
     )
 
@@ -86,7 +87,7 @@ for epoch in range(1, epochs + 1):
         losses.append(loss)
         bar.update(i, values=[("loss", loss)])
 
-    print(Style.RESET_ALL + "\n")
+    print(Style.RESET_ALL)
 
     avg = np.mean(losses)
 

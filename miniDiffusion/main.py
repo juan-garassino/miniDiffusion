@@ -67,7 +67,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
     print(
         "\n⏩ "
         + Fore.MAGENTA
-        + f"Training diffusion model for epoch {epoch} of {int(os.environ.get('EPOCHS'))}" + "\n", end="",
+        + f"Training diffusion model for epoch {epoch} of {int(os.environ.get('EPOCHS'))}\n" + "\n", end="",
     )
 
     for i, batch in enumerate(iter(dataset)):

@@ -99,6 +99,6 @@ for epoch in range(1, epochs + 1):
     print(
         "\n✅ "
         + Fore.CYAN
-        + "Time for epoch {} is {} sec".format(epoch + 1, time.time() - start)
+        + "Time for epoch {} is {} sec".format(epoch, time.time() - start)
         + Style.RESET_ALL
     )

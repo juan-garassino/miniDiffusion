@@ -51,7 +51,7 @@ def denoising_diffusion_probabilistic_models(unet):
     img_list = []
     img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-    for i in tqdm(range(timesteps - 1)):
+    for i in range(timesteps - 1):
         t = np.expand_dims(np.array(timesteps - i - 1, np.int32), 0)
         pred_noise = unet(x, t)
         x = ddpm(x, pred_noise, t)
@@ -83,7 +83,7 @@ def denoising_diffusion_probabilistic_models(unet):
         np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
 
     print("\n🔽 " + Fore.BLUE +
-          f"Generated picture {picture_name} at {out_dir}" + Style.RESET_ALL)
+          f"Generated git {picture_name.split('/')[-1]} at {out_dir}" + Style.RESET_ALL)
 
     plt.show()
 
@@ -142,7 +142,7 @@ def denoising_diffusion_implicit_models(unet):
                cmap="gray")
 
     print("\n🔽 " + Fore.BLUE +
-          f"Generated picture {picture_name} @ {out_dir}" + Style.RESET_ALL)
+          f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
 
     plt.savefig(picture_name)
 

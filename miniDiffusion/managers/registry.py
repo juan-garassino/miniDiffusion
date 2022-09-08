@@ -2,12 +2,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from miniDiffusion.utils.utils import forward_noise
+from miniDiffusion.managers.manager import Manager
+import os
 from colorama import Fore, Style
+from datetime import datetime
 
 
 def some_steps(dataset):
     # Let us visualize the output image at a few timestamps
     sample_mnist = next(iter(dataset))[0]
+
+    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniDiffusion",
+                           "snapshots")
+
+    if int(os.environ.get("COLAB")) == 1:
+
+        out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
+                               "results", "miniDiffusion", "snapshots")
+
+    Manager.make_directory(out_dir)
 
     fig = plt.figure(figsize=(15, 30))
 
@@ -22,7 +35,10 @@ def some_steps(dataset):
             ),
         )
         plt.subplot(1, 4, index + 1)
+
         plt.imshow(np.squeeze(np.squeeze(noisy_im, -1), 0), cmap="gray")
+
+        Manager.make_snapshot(fig, out_dir)
 
     plt.show()
 

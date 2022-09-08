@@ -1,6 +1,9 @@
 from tensorflow.train import Checkpoint, CheckpointManager
 import os
 from colorama import Fore, Style
+import errno
+import matplotlib.pyplot as plt
+from datetime import datetime
 
 from miniDiffusion.utils.preprocess import preprocess
 from miniDiffusion.utils.params import BATCH_SIZE
@@ -17,12 +20,12 @@ class Manager():
         self.directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDifussion',
                                'checkpoints')
 
-        self.make_directory(self.directory)
-
         if int(os.environ.get('COLAB')) == 1:
             self.directory = os.path.join(os.environ.get('HOME'), '..', 'content',
                                           'results', 'miniDifussion',
                                           'checkpoints')
+
+        self.make_directory(self.directory)
 
         self.checkpoint_manager = CheckpointManager(self.checkpoint, self.directory,
                                                     max_to_keep=2)
@@ -74,6 +77,18 @@ class Manager():
 
         # Return numpy arrays instead of TF tensors while iterating
         return tensorflow_datasets.as_numpy(train_ds)
+
+    def make_snapshot(snapshot, out_dir):
+
+        now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+        picture_name = "{}/image[{}].png".format(out_dir, now)
+
+        plt.savefig(picture_name)
+
+        print("\n🔽 " + Fore.BLUE +
+              f"Generated media {picture_name.split('/')[-1]} at {out_dir}" +
+              Style.RESET_ALL)
 
     @staticmethod
     def make_directory(directory):

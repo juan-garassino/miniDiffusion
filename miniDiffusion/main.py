@@ -1,8 +1,7 @@
 from miniDiffusion.models.model import Unet
 from miniDiffusion.utils.utils import generate_timestamp, forward_noise
 from miniDiffusion.models.losses import loss_fn
-from miniDiffusion.utils.data import get_datasets
-from miniDiffusion.utils.params import data
+from miniDiffusion.data.data import get_datasets
 
 from tensorflow.keras.optimizers import Adam
 import numpy as np
@@ -11,7 +10,6 @@ import time
 from colorama import Fore, Style
 
 dataset = get_datasets()
-
 
 # Suppressing tf.hub warnings
 tf.get_logger().setLevel("ERROR")

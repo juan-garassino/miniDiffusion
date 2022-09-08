@@ -1,3 +1,8 @@
+from colorama import Fore, Style
+import os
+import numpy as np
+import time
+
 from miniDiffusion.models.model import Unet
 from miniDiffusion.models.losses import loss_fn
 from miniDiffusion.models.optimizer import optimizer
@@ -8,14 +13,8 @@ from miniDiffusion.managers.manager import Manager
 from miniDiffusion.utils.utils import generate_timestamp, forward_noise
 from miniDiffusion.data.data import get_datasets
 
-from colorama import Fore, Style
-
-import numpy as np
 from tensorflow import GradientTape, get_logger
 from tensorflow.keras.utils import Progbar
-import time
-
-
 
 dataset = get_datasets()
 
@@ -53,9 +52,7 @@ def train_step(batch):
 
     return loss_value
 
-epochs = 10
-
-for epoch in range(1, epochs + 1):
+for epoch in range(1, int(os.environ.get('EPOCHS')) + 1):
 
     start = time.time()
     # this is cool utility in Tensorflow that will create a nice looking progress bar
@@ -63,7 +60,9 @@ for epoch in range(1, epochs + 1):
     losses = []
 
     print(
-        "\n⏩ " + Fore.MAGENTA + f"Training diffusion model for epoch {epoch} of {epochs}\n" + "\n",
+        "\n⏩ " + Fore.MAGENTA +
+        f"Training diffusion model for epoch {epoch} of {int(os.environ.get('EPOCHS'))}\n"
+        + "\n",
         end="",
     )
 
@@ -78,11 +77,9 @@ for epoch in range(1, epochs + 1):
     avg = np.mean(losses)
 
     print(
-        "\n📶 "
-        + Fore.CYAN
-        + f"Average loss for epoch {epoch}/{epochs}: {avg}"
-        + Style.RESET_ALL
-    )
+        "\n📶 " + Fore.CYAN +
+        f"Average loss for epoch {epoch}/{int(os.environ.get('EPOCHS'))}: {avg}"
+        + Style.RESET_ALL)
 
     print(
         "\n✅ "

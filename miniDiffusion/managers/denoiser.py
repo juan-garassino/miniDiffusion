@@ -41,7 +41,7 @@ def ddim(x_t, pred_noise, t, sigma_t):
 
 
 if __name__ == "__main__":
-    if os.environ["DENOIGING"] == "ddpm":
+    if os.environ["DENOISING"] == "ddpm":
 
         x = tf.random.normal((1, 32, 32, 1))
         img_list = []
@@ -65,7 +65,7 @@ if __name__ == "__main__":
             np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
         plt.show()
 
-    if os.environ["DENOIGING"] == "ddim":
+    if os.environ["DENOISING"] == "ddim":
         # Define number of inference loops to run
         inference_timesteps = 10
 

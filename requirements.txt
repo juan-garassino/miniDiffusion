@@ -33,3 +33,4 @@ protobuf==3.20.*
 tensorflow_datasets
 tensorflow_addons
 einops
+colorama

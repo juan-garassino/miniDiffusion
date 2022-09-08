@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 timesteps = 400
+data="mnist"
 
 # create a fixed beta schedule
 beta = np.linspace(0.0001, 0.02, timesteps)

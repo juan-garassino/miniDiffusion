@@ -1,7 +1,7 @@
 import tensorflow.keras.layers as nn
 import tensorflow_addons as tfa
 
-from miniDiffusion.helpers import (
+from miniDiffusion.utils.helpers import (
     default,
     SinusoidalPosEmb,
     GELU,
@@ -11,7 +11,7 @@ from miniDiffusion.helpers import (
     Upsample,
     PreNorm,
 )
-from miniDiffusion.blocks import ResnetBlock, LinearAttention, Attention
+from miniDiffusion.models.blocks import ResnetBlock, LinearAttention, Attention
 from tensorflow.keras import Model, Sequential
 from functools import partial
 import tensorflow as tf

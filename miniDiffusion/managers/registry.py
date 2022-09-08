@@ -2,9 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 from miniDiffusion.utils import forward_noise
+from colorama import Fore, Style
 
 
-def some_steps():
+def some_steps(dataset):
     # Let us visualize the output image at a few timestamps
     sample_mnist = next(iter(dataset))[0]
 
@@ -51,3 +52,7 @@ def save_gif(img_list, path="", interval=200):
         duration=interval,
         loop=0,
     )
+
+    print("\n🔽 " + Fore.BLUE +
+          "Genearted gif of {} frames from {}".format(interval, path) +
+          Style.RESET_ALL)

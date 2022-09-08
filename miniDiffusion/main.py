@@ -1,13 +1,19 @@
-from miniDiffusion.model import Unet
-from miniDiffusion.utils import generate_timestamp, forward_noise
-from miniDiffusion.losses import loss_fn
-from miniDiffusion.preprocess import get_datasets
+from miniDiffusion.models.model import Unet
+from miniDiffusion.utils.utils import generate_timestamp, forward_noise
+from miniDiffusion.models.losses import loss_fn
+from miniDiffusion.utils.data import get_datasets
+from miniDiffusion.utils.params import data
 
 from tensorflow.keras.optimizers import Adam
 import numpy as np
 import tensorflow as tf
+import time
+from colorama import Fore, Style
 
 dataset = get_datasets()
+
+
+
 # Suppressing tf.hub warnings
 tf.get_logger().setLevel("ERROR")
 
@@ -22,9 +28,14 @@ ckpt_manager = tf.train.CheckpointManager(ckpt, "./checkpoints", max_to_keep=2)
 if ckpt_manager.latest_checkpoint:
     ckpt.restore(ckpt_manager.latest_checkpoint)
     start_interation = int(ckpt_manager.latest_checkpoint.split("-")[-1])
-    print("Restored from {}".format(ckpt_manager.latest_checkpoint))
+
+    print("\n🔽 " + Fore.BLUE +
+          "Restored from {}".format(ckpt_manager.latest_checkpoint) +
+          Style.RESET_ALL)
+
 else:
-    print("Initializing from scratch.")
+
+    print("\n⏹ " + Fore.GREEN + "Initializing from scratch." + Style.RESET_ALL)
 
 # initialize the model in the memory of our GPU
 test_images = np.ones([1, 32, 32, 1])
@@ -55,16 +66,29 @@ def train_step(batch):
 
 
 epochs = 10
-for e in range(1, epochs + 1):
+for epoch in range(1, epochs + 1):
+
+    start = time.time()
     # this is cool utility in Tensorflow that will create a nice looking progress bar
-    bar = tf.keras.utils.Progbar(len(dataset) - 1)
+    bar = tf.keras.utils.Progbar(len(dataset) - 1) # keras progress bar!!
     losses = []
+
+    print("\n⏩ " + Fore.MAGENTA + f"Training diffusion model for epoch {epoch}\n" + "\n", end="")
+
     for i, batch in enumerate(iter(dataset)):
         # run the training loop
         loss = train_step(batch)
         losses.append(loss)
         bar.update(i, values=[("loss", loss)])
 
+    print(Style.RESET_ALL + '\n')
+
     avg = np.mean(losses)
-    print(f"Average loss for epoch {e}/{epochs}: {avg}")
-    ckpt_manager.save(checkpoint_number=e)
+
+    print("\n📶 " + Fore.CYAN + f"Average loss for epoch {epoch}/{epochs}: {avg}" +
+          Style.RESET_ALL)
+
+    print("\n✅ " + Fore.CYAN +
+          "Time for epoch {} is {} sec".format(epoch + 1,
+                                               time.time() - start) +
+          Style.RESET_ALL)

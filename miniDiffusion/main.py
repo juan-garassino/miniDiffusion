@@ -7,7 +7,10 @@ from miniDiffusion.models.model import Unet
 from miniDiffusion.models.losses import loss_fn
 from miniDiffusion.models.optimizer import optimizer
 
-from miniDiffusion.managers.denoiser import denoising_diffusion_implicit_models, denoising_diffusion_probabilistic_models
+from miniDiffusion.managers.denoiser import (
+    denoising_diffusion_implicit_models,
+    denoising_diffusion_probabilistic_models,
+)
 from miniDiffusion.managers.manager import Manager
 
 from miniDiffusion.utils.utils import generate_timestamp, forward_noise
@@ -22,7 +25,7 @@ get_logger().setLevel("ERROR")
 # create our unet model
 unet = Unet(channels=1)
 
-manager = Manager(unet, os.environ.get('DATA'))
+manager = Manager(unet, os.environ.get("DATA"))
 
 manager.load_model()
 
@@ -36,6 +39,7 @@ k = unet(test_images, test_timestamps)
 # create our optimizer, we will use adam with a Learning rate of 1e-4
 
 rng = 0
+
 
 def train_step(batch):
     rng, tsrng = np.random.randint(0, 100000, size=(2,))
@@ -52,7 +56,8 @@ def train_step(batch):
 
     return loss_value
 
-for epoch in range(1, int(os.environ.get('EPOCHS')) + 1):
+
+for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
 
     start = time.time()
     # this is cool utility in Tensorflow that will create a nice looking progress bar
@@ -60,8 +65,9 @@ for epoch in range(1, int(os.environ.get('EPOCHS')) + 1):
     losses = []
 
     print(
-        "\n⏩ " + Fore.MAGENTA +
-        f"Training diffusion model for epoch {epoch} of {int(os.environ.get('EPOCHS'))}\n"
+        "\n⏩ "
+        + Fore.MAGENTA
+        + f"Training diffusion model for epoch {epoch} of {int(os.environ.get('EPOCHS'))}\n"
         + "\n",
         end="",
     )
@@ -77,9 +83,11 @@ for epoch in range(1, int(os.environ.get('EPOCHS')) + 1):
     avg = np.mean(losses)
 
     print(
-        "\n📶 " + Fore.CYAN +
-        f"Average loss for epoch {epoch}/{int(os.environ.get('EPOCHS'))}: {avg}"
-        + Style.RESET_ALL)
+        "\n📶 "
+        + Fore.CYAN
+        + f"Average loss for epoch {epoch}/{int(os.environ.get('EPOCHS'))}: {avg}"
+        + Style.RESET_ALL
+    )
 
     print(
         "\n✅ "

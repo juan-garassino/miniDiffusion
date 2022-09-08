@@ -72,3 +72,16 @@ class Manager():
 
         # Return numpy arrays instead of TF tensors while iterating
         return tensorflow_datasets.as_numpy(train_ds)
+
+    @staticmethod
+    def make_directory(directory):
+        try:
+            os.makedirs(directory)
+
+            print("\n⏹ " + Fore.GREEN +
+                  f"This directory has been created {directory}" +
+                  Style.RESET_ALL)
+
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise

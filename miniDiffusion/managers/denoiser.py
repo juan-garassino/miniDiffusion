@@ -4,6 +4,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from miniDiffusion.managers.registry import save_gif
+from miniDiffusion.managers.manager import Manager
 import os
 from datetime import datetime
 from colorama import Fore, Style
@@ -42,6 +43,10 @@ def ddim(x_t, pred_noise, t, sigma_t):
 
 # SAMPLES
 def denoising_diffusion_probabilistic_models(unet):
+
+    print("\n⏹ " + Fore.GREEN + f"Denoising Diffusion Probabilistic Model started" +
+          Style.RESET_ALL)
+
     x = tf.random.normal((1, 32, 32, 1))
     img_list = []
     img_list.append(np.squeeze(np.squeeze(x, 0), -1))
@@ -58,15 +63,15 @@ def denoising_diffusion_probabilistic_models(unet):
                        cmap="gray")
             plt.show()
 
-    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
+    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniDiffusion",
                            "snapshots")
 
     if int(os.environ.get("COLAB")) == 1:
 
         out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
-                               "results", "miniGan", "snapshots")
+                               "results", "miniDiffusion", "snapshots")
 
-    os.mkdir(out_dir)
+    Manager.make_directory(out_dir)
 
     now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 
@@ -84,6 +89,9 @@ def denoising_diffusion_probabilistic_models(unet):
 
 
 def denoising_diffusion_implicit_models(unet):
+
+    print("\n⏹ " + Fore.GREEN + f"Denoising Diffusion Implicit Model started" +
+          Style.RESET_ALL)
 
     # Define number of inference loops to run
     inference_timesteps = 10
@@ -121,7 +129,9 @@ def denoising_diffusion_implicit_models(unet):
     if int(os.environ.get("COLAB")) == 1:
 
         out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
-                               "results", "miniGan", "snapshots")
+                               "results", "miniDiffusion", "snapshots")
+
+    Manager.make_directory(out_dir)
 
     now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 

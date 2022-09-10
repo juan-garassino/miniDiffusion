@@ -13,10 +13,13 @@ import tensorflow as tf
 
 class Manager():
 
-    def __init__(self, network, data):
+    def __init__(self, network, optimizer, data):
 
         self.network = network
-        self.checkpoint = Checkpoint(unet=self.network)
+        self.optimizer = optimizer
+        self.checkpoint = Checkpoint(model=self.network,
+                                     optimizer=self.optimizer)
+
         self.directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDiffusion',
                                'checkpoints')
 
@@ -26,7 +29,6 @@ class Manager():
                                           'checkpoints')
 
         self.make_directory(self.directory)
-
         self.data = data
 
     def manage_checkpoints(self):

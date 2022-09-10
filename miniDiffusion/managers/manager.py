@@ -27,13 +27,21 @@ class Manager():
 
         self.make_directory(self.directory)
 
-        self.checkpoint_manager = CheckpointManager(self.checkpoint, self.directory,
+        self.data = data
+
+    def manage_checkpoints(self):
+
+        self.checkpoint_manager = CheckpointManager(self.checkpoint,
+                                                    self.directory,
                                                     max_to_keep=2)
 
-        self.data = data
+        return self.checkpoint_manager, self.checkpoint
 
     def load_model(self):
         # load from a previous checkpoint if it exists, else initialize the model from scratch
+
+        self.checkpoint_manager, self.checkpoint = self.manage_checkpoints()
+
         if self.checkpoint_manager.latest_checkpoint:
             self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
             start_interation = int(self.checkpoint_manager.latest_checkpoint.split("-")[-1])

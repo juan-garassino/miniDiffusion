@@ -27,6 +27,8 @@ unet = Unet(channels=1)
 
 manager = Manager(unet, os.environ.get("DATA"))
 
+checkpoint_manager, checkpoint = manager.manage_checkpoints()
+
 manager.load_model()
 
 dataset = manager.get_datasets()

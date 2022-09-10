@@ -41,8 +41,6 @@ checkpoint_manager = CheckpointManager(checkpoint,directory,max_to_keep=2)
 
 manager = Manager(unet, optimizer, os.environ.get("DATA"))
 
-checkpoint_manager, checkpoint = manager.manage_checkpoints()
-
 # manager.load_model()
 
 dataset = manager.get_datasets()
@@ -98,7 +96,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
     avg = np.mean(losses)
 
     print(
-        "\n📶 "
+        "📶 "
         + Fore.CYAN
         + f"Average loss for epoch {epoch}/{int(os.environ.get('EPOCHS'))}: {avg}"
         + Style.RESET_ALL

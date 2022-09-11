@@ -32,7 +32,7 @@ Manager.make_directory(output_directory)  # Makes the directory
 manager = Manager(unet, optimizer,
                   os.environ.get("DATA"))  # Initialize the project manager
 
-dataset = manager.make_datasets()  # Project manager loads the data
+dataset = manager.get_datasets()  # Project manager loads the data
 
 checkpoint = Checkpoint(step=Variable(1), optimizer=optimizer,
                         model=unet)  # Creates the checkpoint
@@ -41,8 +41,7 @@ checkpoint_manager = CheckpointManager(
     checkpoint, output_directory,
     max_to_keep=3)  # Creates a checkpoint manager
 
-manager.train_and_checkpoint(
-    unet, checkpoint,
+manager.train_and_checkpoint(checkpoint,
     checkpoint_manager)  # Checkpoint manager loads the last checkpoint
 
 test_images = np.ones([1, 32, 32,

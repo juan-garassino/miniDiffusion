@@ -17,7 +17,8 @@ class Manager():
         pass
         # self.data = data
 
-    def train_and_checkpoint(self, ckeckpoint, manager):
+    @staticmethod  # They do not require a class instance creation
+    def train_and_checkpoint(ckeckpoint, manager):
         ckeckpoint.restore(manager.latest_checkpoint)
         if manager.latest_checkpoint:
             print("\n✅ " + Fore.CYAN +
@@ -52,7 +53,7 @@ class Manager():
                 raise
 
     @staticmethod  # They do not require a class instance creation
-    def get_datasets(self):
+    def get_datasets():
         # Load the MNIST dataset
         data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
 

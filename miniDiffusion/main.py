@@ -99,11 +99,9 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
     avg = np.mean(losses)
 
     print(
-        "📶 "
-        + Fore.CYAN
-        + f"Average loss for epoch {epoch}/{int(os.environ.get('EPOCHS'))}: {avg}"
-        + Style.RESET_ALL
-    )
+        "\n📶 " + Fore.CYAN +
+        f"Average loss for epoch {epoch}/{int(os.environ.get('EPOCHS'))}: {avg}"
+        + Style.RESET_ALL)
 
     print(
         "\n✅ "

@@ -1,3 +1,4 @@
+from turtle import width
 from colorama import Fore, Style
 import os
 import numpy as np
@@ -76,7 +77,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
 
     start = time.time()
     # this is cool utility in Tensorflow that will create a nice looking progress bar
-    bar = Progbar(len(dataset) - 1)  # keras progress bar!!
+    bar = Progbar(len(dataset) - 1, width=50)  # keras progress bar!!
     losses = []
 
     print(

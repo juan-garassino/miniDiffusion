@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 
 from miniDiffusion.utils.preprocess import preprocess
-from miniDiffusion.utils.params import BATCH_SIZE
+from miniDiffusion.utils.params import BATCH_SIZE, SAMPLES
 
 import tensorflow_datasets as tensorflow_datasets
 import tensorflow as tf
@@ -73,7 +73,7 @@ class Manager():
         # Normalize to [-1, 1], shuffle and batch
         train_ds = train_ds[0].map(preprocess, tf.data.AUTOTUNE)
 
-        train_ds = train_ds.shuffle(5000).batch(BATCH_SIZE).prefetch(
+        train_ds = train_ds.take(SAMPLES).shuffle(5000).batch(BATCH_SIZE).prefetch(
             tf.data.AUTOTUNE)
 
         print("\n⏹ " + Fore.GREEN +

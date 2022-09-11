@@ -16,44 +16,41 @@ from miniDiffusion.managers.manager import Manager
 
 from miniDiffusion.utils.utils import generate_timestamp, forward_noise
 
-from tensorflow import GradientTape, get_logger
+from tensorflow import GradientTape, get_logger, Variable
 from tensorflow.keras.utils import Progbar
 from tensorflow.train import Checkpoint, CheckpointManager
 
 
-# Suppressing tf.hub warnings
-get_logger().setLevel("ERROR")
+get_logger().setLevel("ERROR")  # Suppressing tf.hub warnings
 
-# create our unet model
-unet = Unet(channels=1)
+unet = Unet(channels=1)  # Create our unet model
 
-checkpoint = Checkpoint(model=unet, optimizer=optimizer)
+output_directory = Manager.working_directory("checkpoints")  # Directory
 
-directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDiffusion', 'checkpoints')
+Manager.make_directory(output_directory)  # Makes the directory
 
-if int(os.environ.get('COLAB')) == 1:
-    directory = os.path.join(os.environ.get('HOME'), '..', 'content',
-                                    'results', 'miniDiffusion',
-                                    'checkpoints')
+manager = Manager(unet, optimizer,
+                  os.environ.get("DATA"))  # Initialize the project manager
 
-Manager.make_directory(directory)
+dataset = manager.make_datasets()  # Project manager loads the data
 
-checkpoint_manager = CheckpointManager(checkpoint,directory,max_to_keep=2)
+checkpoint = Checkpoint(step=Variable(1), optimizer=optimizer,
+                        model=unet)  # Creates the checkpoint
 
-manager = Manager(unet, optimizer, os.environ.get("DATA"))
+checkpoint_manager = CheckpointManager(
+    checkpoint, output_directory,
+    max_to_keep=3)  # Creates a checkpoint manager
 
-# manager.load_model()
+manager.train_and_checkpoint(
+    unet, checkpoint,
+    checkpoint_manager)  # Checkpoint manager loads the last checkpoint
 
-dataset = manager.get_datasets()
-
-# initialize the model in the memory of our GPU
-test_images = np.ones([1, 32, 32, 1])
+test_images = np.ones([1, 32, 32,
+                       1])  # initialize the model in the memory of our GPU
 
 test_timestamps = generate_timestamp(0, 1)
 
 k = unet(test_images, test_timestamps)
-
-# create our optimizer, we will use adam with a Learning rate of 1e-4
 
 rng = 0
 
@@ -94,6 +91,12 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
 
     print(Style.RESET_ALL)
 
+    save_path = checkpoint_manager.save()
+
+    print("✅ " + Fore.CYAN + "Saved checkpoint for step {}: {}".format(
+        int(checkpoint.step), save_path) + Style.RESET_ALL)
+
+
     avg = np.mean(losses)
 
     print(
@@ -110,6 +113,6 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
         + Style.RESET_ALL
     )
 
-denoising_diffusion_probabilistic_models(unet)
+    denoising_diffusion_probabilistic_models(unet)
 
-denoising_diffusion_implicit_models(unet)
+    denoising_diffusion_implicit_models(unet)

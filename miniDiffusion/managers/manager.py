@@ -14,50 +14,44 @@ import tensorflow as tf
 class Manager():
 
     def __init__(self, network, optimizer, data):
+        pass
+        # self.data = data
 
-        self.network = network
-        self.optimizer = optimizer
-        self.checkpoint = Checkpoint(model=self.network,
-                                     optimizer=self.optimizer)
-
-        self.directory = os.path.join(os.environ.get('HOME'), 'Results', 'miniDiffusion',
-                               'checkpoints')
-
-        if int(os.environ.get('COLAB')) == 1:
-            self.directory = os.path.join(os.environ.get('HOME'), '..', 'content',
-                                          'results', 'miniDiffusion',
-                                          'checkpoints')
-
-        self.make_directory(self.directory)
-        self.data = data
-
-    def manage_checkpoints(self):
-
-        self.checkpoint_manager = CheckpointManager(self.checkpoint,
-                                                    self.directory,
-                                                    max_to_keep=2)
-
-        return self.checkpoint_manager, self.checkpoint
-
-    def load_model(self):
-        # load from a previous checkpoint if it exists, else initialize the model from scratch
-
-        self.checkpoint_manager, self.checkpoint = self.manage_checkpoints()
-
-        if self.checkpoint_manager.latest_checkpoint:
-            self.checkpoint.restore(self.checkpoint_manager.latest_checkpoint)
-            start_interation = int(self.checkpoint_manager.latest_checkpoint.split("-")[-1])
-
-            print("\n🔽 " + Fore.BLUE + "Restored from ckeckpoint{}".format(
-                start_interation) +
+    def train_and_checkpoint(self, ckeckpoint, manager):
+        ckeckpoint.restore(manager.latest_checkpoint)
+        if manager.latest_checkpoint:
+            print("\n✅ " + Fore.CYAN +
+                  "Restored from {}".format(manager.latest_checkpoint) +
+                  Style.RESET_ALL)
+        else:
+            print("\n✅ " + Fore.CYAN + "Initializing from scratch." +
                   Style.RESET_ALL)
 
-        else:
+    @staticmethod  # They do not require a class instance creation
+    def working_directory(subdirectory):
+        directory = os.path.join(os.environ.get('HOME'), 'Results',
+                                 'miniDiffusion', subdirectory)
 
-            print("\n⏹ " + Fore.GREEN + "Initializing from scratch." + Style.RESET_ALL)
+        if int(os.environ.get('COLAB')) == 1:
+            directory = os.path.join(os.environ.get('HOME'), '..', 'content',
+                                     'results', 'miniDiffusion', subdirectory)
 
-        return self.checkpoint, self.checkpoint_manager
+        return directory
 
+    @staticmethod  # They do not require a class instance creation
+    def make_directory(directory):
+        try:
+            os.makedirs(directory)
+
+            print("\n⏹ " + Fore.GREEN +
+                  f"This directory has been created {directory}" +
+                  Style.RESET_ALL)
+
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+
+    @staticmethod  # They do not require a class instance creation
     def get_datasets(self):
         # Load the MNIST dataset
         data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
@@ -88,6 +82,16 @@ class Manager():
         # Return numpy arrays instead of TF tensors while iterating
         return tensorflow_datasets.as_numpy(train_ds)
 
+    @staticmethod  # They do not require a class instance creation
+    def make_snapshot_label(output_directory):
+
+        now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+        picture_name = "{}/animation[{}].png".format(output_directory, now) # BE CAREFULL WITH GIF!!
+
+        return picture_name
+
+    @staticmethod  # They do not require a class instance creation
     def make_snapshot(snapshot, out_dir):
 
         now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
@@ -99,16 +103,3 @@ class Manager():
         print("\n🔽 " + Fore.BLUE +
               f"Generated media {picture_name.split('/')[-1]} at {out_dir}" +
               Style.RESET_ALL)
-
-    @staticmethod
-    def make_directory(directory):
-        try:
-            os.makedirs(directory)
-
-            print("\n⏹ " + Fore.GREEN +
-                  f"This directory has been created {directory}" +
-                  Style.RESET_ALL)
-
-        except OSError as e:
-            if e.errno != errno.EEXIST:
-                raise

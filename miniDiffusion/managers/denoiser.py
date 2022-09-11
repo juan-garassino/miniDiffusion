@@ -62,13 +62,7 @@ def denoising_diffusion_probabilistic_models(unet):
                 np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8),
                        cmap="gray")
 
-            out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
-                           "snapshots")
-
-            if int(os.environ.get("COLAB")) == 1:
-
-                out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
-                                    "results", "miniDiffusion", "snapshots")
+            out_dir = Manager.working_directory('snapshots')
 
             Manager.make_directory(out_dir)
 
@@ -85,13 +79,7 @@ def denoising_diffusion_probabilistic_models(unet):
 
             plt.show()
 
-    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniDiffusion",
-                           "snapshots")
-
-    if int(os.environ.get("COLAB")) == 1:
-
-        out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
-                               "results", "miniDiffusion", "snapshots")
+    out_dir = Manager.working_directory('snapshots')
 
     Manager.make_directory(out_dir)
 
@@ -145,13 +133,7 @@ def denoising_diffusion_implicit_models(unet):
                 cmap="gray",
             )
 
-            out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
-                           "snapshots")
-
-            if int(os.environ.get("COLAB")) == 1:
-
-                out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
-                                    "results", "miniDiffusion", "snapshots")
+            out_dir = Manager.working_directory('snapshots')
 
             Manager.make_directory(out_dir)
 
@@ -168,13 +150,7 @@ def denoising_diffusion_implicit_models(unet):
 
             plt.show()
 
-    out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniGan",
-                           "snapshots")
-
-    if int(os.environ.get("COLAB")) == 1:
-
-        out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
-                               "results", "miniDiffusion", "snapshots")
+    out_dir = Manager.working_directory('snapshots')
 
     Manager.make_directory(out_dir)
 

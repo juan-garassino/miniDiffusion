@@ -68,7 +68,7 @@ def denoising_diffusion_probabilistic_models(unet):
 
             now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
 
-            picture_name = "{}/image[{}].png".format(out_dir, now)
+            picture_name = f"{out_dir}/image[{now}][{i}].png"
 
             plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :,
                                                                             0],

@@ -8,7 +8,7 @@ check_code:
 	@flake8 scripts/* miniDiffusion/*.py
 
 black:
-	@black scripts/* miniDiffusion/*.py
+	@black scripts/* miniDiffusion/*.py miniDiffusion/*/*.py
 
 test:
 	@coverage run -m pytest tests/*.py

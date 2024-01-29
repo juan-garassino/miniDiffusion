@@ -11,6 +11,7 @@ from miniDiffusion.models.optimizer import optimizer
 from miniDiffusion.managers.denoiser import (
     denoising_diffusion_implicit_models,
     denoising_diffusion_probabilistic_models,
+    denoise_process,
 )
 from miniDiffusion.managers.manager import Manager
 
@@ -55,15 +56,18 @@ rng = 0
 
 def train_step(batch):
     rng, tsrng = np.random.randint(0, 100000, size=(2,))
+
     timestep_values = generate_timestamp(tsrng, batch.shape[0])
 
-    noised_image, noise = forward_noise(rng, batch, timestep_values)
+    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=True)
+
     with GradientTape() as tape:
         prediction = unet(noised_image, timestep_values)
 
         loss_value = loss_fn(noise, prediction)
 
     gradients = tape.gradient(loss_value, unet.trainable_variables)
+
     optimizer.apply_gradients(zip(gradients, unet.trainable_variables))
 
     return loss_value
@@ -74,6 +78,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
     start = time.time()
     # this is cool utility in Tensorflow that will create a nice looking progress bar
     bar = Progbar(len(dataset) - 1, width=50)  # keras progress bar!!
+
     losses = []
 
     print(
@@ -110,6 +115,8 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
         + Style.RESET_ALL
     )
 
-denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+denoise_process(unet)  # Invalid denoising environment specified.
+
+# denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
 
 # denoising_diffusion_implicit_models(unet)

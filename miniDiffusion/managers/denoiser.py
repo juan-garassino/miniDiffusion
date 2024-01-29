@@ -56,7 +56,7 @@ from miniDiffusion.managers.manager import Manager
 from datetime import datetime
 from colorama import Fore, Style
 from PIL import Image
-
+import os
 
 def ddpm_denoise(input_data, predicted_noise, timestep):
     """
@@ -266,3 +266,15 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
         plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
         plt.show()
         print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
+
+# Main function to denoise based on environmental variable
+def denoise_process(unet):
+    if os.environ.get('DENOISING') == "DDPM":
+        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+    elif os.environ.get('DENOISING') == "DDIM":
+        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+    elif os.environ.get('DENOISING') == "BOTH":
+        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+    else:
+        print("Invalid denoising environment specified.")

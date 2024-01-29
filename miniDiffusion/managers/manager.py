@@ -68,7 +68,7 @@ class Manager():
         # Normalize to [-1, 1], shuffle and batch
         train_ds = train_ds[0].map(preprocess, tf.data.AUTOTUNE)
 
-        train_ds = train_ds.take(SAMPLES).shuffle(5000).batch(BATCH_SIZE).prefetch(
+        train_ds = train_ds.take(SAMPLES).shuffle(5000).cache().batch(BATCH_SIZE).prefetch(
             tf.data.AUTOTUNE)
 
         print("\n⏹ " + Fore.GREEN +

@@ -53,58 +53,118 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 from miniDiffusion.managers.registry import save_gif
 from miniDiffusion.managers.manager import Manager
-import os
 from datetime import datetime
 from colorama import Fore, Style
+from PIL import Image
 
-def ddpm(x_t, pred_noise, t):
-    # alpha_t and alpha_t_bar are extracted from pre-defined sequences alpha and alpha_bar
-    # using the timestep t. These values are part of the noise schedule in the diffusion process.
-    alpha_t = np.take(alpha, t)
-    alpha_t_bar = np.take(alpha_bar, t)
+
+def ddpm_denoise(input_data, predicted_noise, timestep):
+    """
+    Denoises the input data `input_data` using the DDPM (Diffusion Denoising Probabilistic Model) method at timestep `timestep`.
+
+    Parameters:
+    - input_data: numpy array, input data at timestep `timestep`, possibly corrupted by noise.
+    - predicted_noise: numpy array, noise predicted by the diffusion model.
+    - timestep: int, timestep at which the denoising process is applied.
+
+    Returns:
+    - denoised_data: numpy array, denoised version of input data `input_data` at timestep `timestep`.
+
+    The function computes the denoised version of the input data `input_data` at timestep `timestep` using the DDPM method.
+    It extracts `alpha_t` and `alpha_t_bar` from predefined sequences `alpha` and `alpha_bar` respectively,
+    according to the timestep `timestep`, which are part of the noise schedule in the diffusion process.
+    The coefficient for scaling the predicted noise, `eps_coef`, is calculated based on `alpha_t` and `alpha_t_bar`.
+    The mean of the reverse diffusion process at timestep `timestep` is computed to reconstruct the data from the noisy version.
+    The variance at timestep `timestep` is obtained from the predefined sequence `beta`.
+    Noise is sampled from a normal distribution to add stochasticity to the reverse process.
+    The denoised data is returned with added noise according to the variance at timestep `timestep`.
+    """
+
+    # Extract `alpha_t` and `alpha_t_bar` from pre-defined sequences `alpha` and `alpha_bar`
+    # using the timestep `timestep`. These values are part of the noise schedule in the diffusion process.
+    alpha_t = np.take(alpha, timestep)
+    alpha_t_bar = np.take(alpha_bar, timestep)
 
     # Calculate the coefficient for scaling the predicted noise.
-    eps_coef = (1 - alpha_t) / (1 - alpha_t_bar) ** 0.5
+    eps_coef = (1 - alpha_t) / np.sqrt(1 - alpha_t_bar)
 
-    # Compute the mean of the reverse diffusion process at timestep t.
+    # Compute the mean of the reverse diffusion process at timestep `timestep`.
     # This is part of the denoising step, reconstructing the data from the noisy version.
-    mean = (1 / (alpha_t**0.5)) * (x_t - eps_coef * pred_noise)
+    mean = (1 / np.sqrt(alpha_t)) * (input_data - eps_coef * predicted_noise)
 
-    # Variance at timestep t is obtained from the pre-defined sequence beta.
-    var = np.take(beta, t)
+    # Variance at timestep `timestep` is obtained from the pre-defined sequence `beta`.
+    variance_timestep = np.take(beta, timestep)
 
     # Sample noise from a normal distribution to add stochasticity to the reverse process.
-    z = np.random.normal(size=x_t.shape)
+    noise_sample = np.random.normal(size=input_data.shape)
 
-    # Return the denoised data with added noise according to the variance at timestep t.
-    return mean + (var**0.5) * z
+    # Return the denoised data with added noise according to the variance at timestep `timestep`.
+    return mean + np.sqrt(variance_timestep) * noise_sample
 
-def ddim(x_t, pred_noise, t, sigma_t):
-    # Extract alpha_t_bar and alpha_t_minus_one using timestep t from pre-defined sequences.
-    alpha_t_bar = np.take(alpha_bar, t)
-    alpha_t_minus_one = np.take(alpha, t - 1)
+def ddim_denoise(input_data, predicted_noise, timestep, noise_std):
+    """
+    Performs denoising and diffusion-based image modeling (DDIM) at timestep `timestep`.
+
+    Parameters:
+    - input_data: numpy array, input data at timestep `timestep`, possibly corrupted by noise.
+    - predicted_noise: numpy array, noise predicted by the diffusion model.
+    - timestep: int, timestep at which the denoising process is applied.
+    - noise_std: float, standard deviation of the noise distribution at timestep `timestep`.
+
+    Returns:
+    - denoised_prediction: numpy array, denoised prediction for timestep `timestep`.
+
+    The function computes the denoised prediction for the input data `input_data` at timestep `timestep` using the DDIM method.
+    It extracts `alpha_t_bar` and `alpha_t_minus_one` from predefined sequences `alpha_bar` and `alpha` respectively,
+    according to the timestep `timestep`, which are part of the noise schedule in the diffusion process.
+    The prediction is computed by denoising and adjusting for the alpha coefficients.
+    Additional adjustments are made by adding a scaled version of the predicted noise and additional noise
+    scaled by `noise_std` for stochasticity.
+    The final prediction for timestep `timestep` is returned.
+    """
+
+    # Extract `alpha_t_bar` and `alpha_t_minus_one` using timestep `timestep` from pre-defined sequences.
+    alpha_t_bar = np.take(alpha_bar, timestep)
+    alpha_t_minus_one = np.take(alpha, timestep - 1)
 
     # Compute the prediction by denoising and adjusting for the alpha coefficients.
-    pred = (x_t - ((1 - alpha_t_bar) ** 0.5) * pred_noise) / (alpha_t_bar**0.5)
-    pred = (alpha_t_minus_one**0.5) * pred
+    prediction = (input_data - ((1 - alpha_t_bar) ** 0.5) * predicted_noise) / (alpha_t_bar ** 0.5)
+    prediction = (alpha_t_minus_one ** 0.5) * prediction
 
     # Adjust the prediction by adding a scaled version of the predicted noise.
-    pred = pred + ((1 - alpha_t_minus_one - (sigma_t**2)) ** 0.5) * pred_noise
+    prediction = prediction + ((1 - alpha_t_minus_one - (noise_std ** 2)) ** 0.5) * predicted_noise
 
-    # Add additional noise scaled by sigma_t for stochasticity.
-    eps_t = np.random.normal(size=x_t.shape)
-    pred = pred + (sigma_t * eps_t)
+    # Add additional noise scaled by `noise_std` for stochasticity.
+    additional_noise = np.random.normal(size=input_data.shape)
+    prediction = prediction + (noise_std * additional_noise)
 
-    # Return the final prediction for the timestep t.
-    return pred
+    # Return the final prediction for the timestep `timestep`.
+    return prediction
 
+def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None):
+    """
+    Performs the Denoising Diffusion Probabilistic Model process.
 
-def denoising_diffusion_probabilistic_models(unet):
+    Parameters:
+    - unet: tf.keras.Model, the U-Net model used for predicting noise.
+    - timesteps: int, number of timesteps in the diffusion process.
+    - starting_noise: numpy array, starting point of noise.
+    - verbose: bool, whether to display intermediate images.
+    - save_interval: int, specifies the interval for saving images.
+
+    Returns:
+    None
+    """
+
     # Starting the Denoising Diffusion Probabilistic Model process.
     print("\n⏹ " + Fore.GREEN + "Denoising Diffusion Probabilistic Model started" + Style.RESET_ALL)
 
-    # Initialize a random noise image.
-    x = tf.random.normal((1, 32, 32, 1))
+    # Initialize a random noise image if starting_noise is not provided.
+    if starting_noise is None:
+        x = tf.random.normal((1, 32, 32, 1))
+    else:
+        x = starting_noise
+
     img_list = [np.squeeze(np.squeeze(x, 0), -1)]
 
     # Iteratively apply the denoising diffusion process.
@@ -114,14 +174,16 @@ def denoising_diffusion_probabilistic_models(unet):
         # Predict the noise using the U-Net model.
         pred_noise = unet(x, t)
         # Apply the denoising diffusion process.
-        x = ddpm(x, pred_noise, t)
+        x = ddpm_denoise(x, pred_noise, t)
         # Store the generated image for later use.
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        # Every 25 steps, save and display the current generated image.
-        if i % 25 == 0:
+        # Save and display the current generated image at specified intervals.
+        if save_interval is not None and i % save_interval == 0:
             # Display the generated image.
-            plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8), cmap="gray")
+            if verbose:
+                plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8), cmap="gray")
+                plt.show()
 
             # Define the directory and filename for saving the image.
             out_dir = Manager.working_directory('snapshots')
@@ -129,20 +191,35 @@ def denoising_diffusion_probabilistic_models(unet):
             now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
             picture_name = f"{out_dir}/image[{now}][{i}].png"
 
-            # Print the status message and show the image.
+            # Save the image.
+            Image.fromarray(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)).save(picture_name)
+
+            # Print the status message.
             print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + "\n" + Style.RESET_ALL)
-            plt.show()
 
     # Generate and save the final animation as a GIF.
     save_gif(img_list + ([img_list[-1]] * 100), picture_name, interval=20)
 
-    # Display and print the final generated image.
-    plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
-    print("\n🔽 " + Fore.BLUE + f"Generated git {picture_name.split('/')[-1]} at {out_dir}" + "\n" + Style.RESET_ALL)
-    plt.show()
+    # Display and print the final generated image if verbose is True.
+    if verbose:
+        plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
+        plt.show()
+        print("\n🔽 " + Fore.BLUE + f"Generated gif {picture_name.split('/')[-1]} at {out_dir}" + "\n" + Style.RESET_ALL)
 
+def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None):
+    """
+    Performs the Denoising Diffusion Implicit Model process.
 
-def denoising_diffusion_implicit_models(unet):
+    Parameters:
+    - unet: tf.keras.Model, the U-Net model used for predicting noise.
+    - timesteps: int, number of timesteps in the diffusion process.
+    - verbose: bool, whether to display intermediate images.
+    - save_interval: int, specifies the interval for saving images.
+
+    Returns:
+    None
+    """
+
     # Starting the Denoising Diffusion Implicit Model process.
     print("\n⏹ " + Fore.GREEN + "Denoising Diffusion Implicit Model started" + Style.RESET_ALL)
 
@@ -150,35 +227,42 @@ def denoising_diffusion_implicit_models(unet):
     inference_timesteps = 10
     inference_range = range(0, timesteps, timesteps // inference_timesteps)
 
-    # Initialize a random noise image.
-    x = tf.random.normal((1, 32, 32, 1))
+    # Initialize a random noise image if starting_noise is not provided.
+    if starting_noise is None:
+        x = tf.random.normal((1, 32, 32, 1))
+    else:
+        x = starting_noise
+
     img_list = [np.squeeze(np.squeeze(x, 0), -1)]
 
     # Iteratively apply the denoising diffusion implicit process.
     for index, i in tqdm(enumerate(reversed(range(inference_timesteps))), total=inference_timesteps):
         t = np.expand_dims(inference_range[i], 0)
         pred_noise = unet(x, t)
-        x = ddim(x, pred_noise, t, 0)
+        x = ddim_denoise(x, pred_noise, t, 0)
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        # Display the generated image at each step.
-        if index % 1 == 0:
-            plt.imshow(np.array(np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0, 255), np.uint8), cmap="gray")
+        # Save and display the generated image at specified intervals.
+        if save_interval is not None and index % save_interval == 0:
+            # Display the generated image.
+            if verbose:
+                plt.imshow(np.array(np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0, 255), np.uint8), cmap="gray")
+                plt.show()
 
             # Define the directory and filename for saving the image.
             out_dir = Manager.working_directory('snapshots')
             Manager.make_directory(out_dir)
             now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-            picture_name = "{}/image[{}].png".format(out_dir, now)
+            picture_name = f"{out_dir}/image[{now}].png"
 
-            # Print the status message and show the image.
+            # Save the image.
+            plt.savefig(picture_name)
+
+            # Print the status message.
             print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + "\n" + Style.RESET_ALL)
-            plt.show()
 
-    # Save the final image.
-    plt.savefig(picture_name)
-
-    # Display the final generated image.
-    plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
-    print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
-    plt.show()
+    # Display the final generated image if verbose is True.
+    if verbose:
+        plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
+        plt.show()
+        print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)

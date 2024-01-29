@@ -1,7 +1,8 @@
 import numpy as np
 import tensorflow as tf
 
-timesteps = 400
+timesteps = 1000
+
 data="mnist"
 
 # create a fixed beta schedule
@@ -13,7 +14,6 @@ alpha_bar = np.cumprod(alpha, 0)
 alpha_bar = np.concatenate((np.array([1.0]), alpha_bar[:-1]), axis=0)
 sqrt_alpha_bar = np.sqrt(alpha_bar)
 one_minus_sqrt_alpha_bar = np.sqrt(1 - alpha_bar)
-
 
 # set the parameters for dataset
 target_size = (32, 32)

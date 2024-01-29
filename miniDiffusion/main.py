@@ -61,7 +61,7 @@ def train_step(batch):
 
     timestep_values = generate_timestamp(tsrng, batch.shape[0])
 
-    print("\n🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape}" + Style.RESET_ALL)
+    print("\n🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL)
 
     noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=True)
 

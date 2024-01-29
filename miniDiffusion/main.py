@@ -110,6 +110,6 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
         + Style.RESET_ALL
     )
 
-    denoising_diffusion_probabilistic_models(unet)
+denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
 
-    denoising_diffusion_implicit_models(unet)
+# denoising_diffusion_implicit_models(unet)

@@ -33,6 +33,7 @@ def forward_noise(key, x_0, t, verbose=False):
     noise = np.random.normal(size=x_0.shape)
 
     reshaped_sqrt_alpha_bar_t = np.reshape(np.take(sqrt_alpha_bar, t), (-1, 1, 1, 1))
+
     reshaped_one_minus_sqrt_alpha_bar_t = np.reshape(np.take(one_minus_sqrt_alpha_bar, t), (-1, 1, 1, 1))
 
     noisy_image = (reshaped_sqrt_alpha_bar_t * x_0 + reshaped_one_minus_sqrt_alpha_bar_t * noise)
@@ -43,15 +44,20 @@ def forward_noise(key, x_0, t, verbose=False):
         single_noise = noise[image_index]
         single_noisy_image = noisy_image[image_index]
 
-        # Plot the selected image and its corresponding noisy version
-        fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-        axes[0].imshow(single_noise.squeeze(), cmap='gray')
-        axes[0].set_title('Noise')
+        # Plot the selected image, its corresponding noise, and the noisy version
+        fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+        axes[0].imshow(x_0[image_index].squeeze(), cmap='gray')
+        axes[0].set_title('Original Image')
         axes[0].axis('off')
 
-        axes[1].imshow(single_noisy_image.squeeze(), cmap='gray')
-        axes[1].set_title('Noisy Image')
+        axes[1].imshow(single_noise.squeeze(), cmap='gray')
+        axes[1].set_title('Noise')
         axes[1].axis('off')
+
+        axes[2].imshow(single_noisy_image.squeeze(), cmap='gray')
+        axes[2].set_title('Noisy Image')
+        axes[2].axis('off')
 
         # Generate a timestamp for the plot filename
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

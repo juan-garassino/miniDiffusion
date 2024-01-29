@@ -69,7 +69,7 @@ class Manager():
         train_ds = train_ds[0].map(preprocess, tf.data.AUTOTUNE)
 
         train_ds = train_ds.take(SAMPLES).shuffle(5000).cache().batch(BATCH_SIZE).prefetch(
-            tf.data.AUTOTUNE)
+            tf.data.AUTOTUNE).cache()
 
         print("\n⏹ " + Fore.GREEN +
             f"Data has been sucessfully preproccessed" +

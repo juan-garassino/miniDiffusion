@@ -2,6 +2,9 @@ import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
 import datetime
+from colorama import Fore, Style
+from miniDiffusion.managers.manager import Manager
+
 
 from miniDiffusion.utils.params import one_minus_sqrt_alpha_bar, sqrt_alpha_bar, timesteps
 
@@ -13,6 +16,9 @@ def set_key(key):
     - key: int, seed value for initializing the RNG.
     """
     np.random.seed(key)
+    # Print descriptive message
+    print("\n🔽 " + Fore.GREEN + "RNG seed has been successfully set for NumPy" + Style.RESET_ALL)
+
 
 def forward_noise(key, x_0, t, verbose=False):
     """
@@ -59,11 +65,17 @@ def forward_noise(key, x_0, t, verbose=False):
         axes[2].set_title('Noisy Image')
         axes[2].axis('off')
 
-        # Generate a timestamp for the plot filename
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        # Define the directory and filename for saving the image.
+        out_dir = Manager.working_directory('training_data')
 
+        Manager.make_directory(out_dir)
+
+        now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+
+        plot_filename = f"{out_dir}/noisy_image_plot[{now}].png"
+
+        # Generate a timestamp for the plot filename
         # Save the plot with timestamp in the filename
-        plot_filename = f"noisy_image_plot_{timestamp}.png"
         plt.savefig(plot_filename)
 
         # Close the plot to avoid cache problems
@@ -82,5 +94,13 @@ def generate_timestamp(key, num):
     Returns:
     - timestamps: TensorFlow tensor, batch of generated timestamps.
     """
+
     set_key(key)
-    return tf.random.uniform(shape=[num], minval=0, maxval=timesteps, dtype=tf.int32)
+
+    # Generate timestamps
+    timestamps = tf.random.uniform(shape=[num], minval=0, maxval=timesteps, dtype=tf.int32)
+
+    # Print descriptive message
+    print("\n🔽 " + Fore.GREEN + "Batch of timestamps has been successfully generated" + Style.RESET_ALL)
+
+    return timestamps

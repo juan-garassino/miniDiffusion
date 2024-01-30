@@ -270,11 +270,11 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
 # Main function to denoise based on environmental variable
 def denoise_process(unet):
     if os.environ.get('DENOISING') == "DDPM":
-        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
     elif os.environ.get('DENOISING') == "DDIM":
-        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
     elif os.environ.get('DENOISING') == "BOTH":
-        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
-        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
+        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
+        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
     else:
         print("Invalid denoising environment specified.")

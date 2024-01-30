@@ -58,7 +58,7 @@ def forward_noise(key, x_0, t, verbose=False):
         axes[0].axis('off')
 
         axes[1].imshow(single_noise.squeeze(), cmap='gray')
-        axes[1].set_title(f'Noise {t}')
+        axes[1].set_title(f'Noise {t[image_index]}')
         axes[1].axis('off')
 
         axes[2].imshow(single_noisy_image.squeeze(), cmap='gray')

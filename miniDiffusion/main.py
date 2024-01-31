@@ -50,7 +50,7 @@ manager.train_and_checkpoint(checkpoint,
 test_images = np.ones([1, 32, 32,
                        1])  # initialize the model in the memory of our GPU
 
-test_timestamps = generate_timestamp(0, 1)
+test_timestamps = generate_timestamp(0, 1, verbose=False)
 
 k = unet(test_images, test_timestamps)
 
@@ -62,12 +62,12 @@ def train_step(batch, verbose=False):
     if verbose:
         print("\n🔽 " + Fore.GREEN + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL, end="")
 
-    timestep_values = generate_timestamp(tsrng, batch.shape[0])
+    timestep_values = generate_timestamp(tsrng, batch.shape[0], verbose=False)
 
     if verbose:
         print("\n🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL, end="")
 
-    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=verbose)
+    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=False)
 
     with GradientTape() as tape:
         prediction = unet(noised_image, timestep_values)
@@ -126,3 +126,28 @@ denoise_process(unet, denoising_method="DDPM", timesteps=100, starting_noise=Non
 # denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
 
 # denoising_diffusion_implicit_models(unet)
+
+# TODO
+
+# import argparse
+
+# def parse_arguments():
+
+#     parser = argparse.ArgumentParser(description="Process arguments for running the Python file.")
+
+#     # Define command-line arguments with defaults
+#     parser.add_argument("--COLAB", type=int, default=0, help="Description of COLAB")
+#     parser.add_argument("--EPOCHS", type=int, default=1, help="Description of EPOCHS")
+#     parser.add_argument("--DENOISING", type=str, default='DDPM', help="Description of DENOISING")
+#     parser.add_argument("--DATA", type=str, default='mnist', help="Description of DATA")
+#     parser.add_argument("--N_SAMPLES", type=int, default=500, help="Description of N_SAMPLES")
+#     parser.add_argument("--BATCH_SIZE", type=int, default=64, help="Description of BATCH_SIZE")
+#     parser.add_argument("--BUFFER", type=int, default=128, help="Description of BUFFER")
+#     parser.add_argument("--TIMESTEPS", type=int, default=400, help="Description of TIMESTEPS")
+
+#     args = parser.parse_args()
+#     return args
+
+# if __name__ == "__main__":
+#     args = parse_arguments()
+#     print(args)

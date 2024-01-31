@@ -167,6 +167,9 @@ def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise
 
     img_list = [np.squeeze(np.squeeze(x, 0), -1)]
 
+    # Define picture_name as None initially
+    picture_name = None
+
     # Iteratively apply the denoising diffusion process.
     for i in range(timesteps - 1):
         # Calculate the current timestep.
@@ -178,18 +181,18 @@ def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise
         # Store the generated image for later use.
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
+        # Update picture_name within the loop
+        out_dir = Manager.working_directory('snapshots')
+        Manager.make_directory(out_dir)
+        now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+        picture_name = f"{out_dir}/image[{now}][{i}].png"
+
         # Save the current generated image at specified intervals and at the end.
         if save_interval is not None and (i % save_interval == 0 or i == timesteps - 2):
             # Display the generated image if verbose is True.
             if verbose:
                 plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8), cmap="gray")
                 plt.show()
-
-            # Define the directory and filename for saving the image.
-            out_dir = Manager.working_directory('snapshots')
-            Manager.make_directory(out_dir)
-            now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-            picture_name = f"{out_dir}/image[{now}][{i}].png"
 
             # Save the image.
             Image.fromarray(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)).save(picture_name)
@@ -200,13 +203,13 @@ def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise
     # Generate and save the final animation as a GIF.
     save_gif(img_list + ([img_list[-1]] * 100), picture_name, interval=20)
 
-    # Display and print the final generated image if verbose is True.
-    if verbose:
+    # Display and print the final generated image if verbose is True and picture_name is assigned
+    if verbose and picture_name is not None:
         plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8))
         plt.show()
         print("\n🔽 " + Fore.BLUE + f"Generated gif {picture_name.split('/')[-1]} at {out_dir}" + "\n" + Style.RESET_ALL)
 
-def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, inference_timesteps = 10, verbose=False, save_interval=None):
+def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, inference_timesteps=10, verbose=False, save_interval=None):
     """
     Performs the Denoising Diffusion Implicit Model process.
 
@@ -234,6 +237,9 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
 
     img_list = [np.squeeze(np.squeeze(x, 0), -1)]
 
+    # Define picture_name as None initially
+    picture_name = None
+
     # Iteratively apply the denoising diffusion implicit process.
     for index, i in tqdm(enumerate(reversed(range(inference_timesteps))), total=inference_timesteps):
         t = np.expand_dims(inference_range[i], 0)
@@ -241,14 +247,14 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
         x = ddim_denoise(x, pred_noise, t, 0)
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
+        # Update picture_name within the loop
+        out_dir = Manager.working_directory('snapshots')
+        Manager.make_directory(out_dir)
+        now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+        picture_name = f"{out_dir}/image[{now}].png"
+
         # Save the generated image at specified intervals and at the end.
         if save_interval is not None and (index % save_interval == 0 or index == inference_timesteps - 1):
-            # Define the directory and filename for saving the image.
-            out_dir = Manager.working_directory('snapshots')
-            Manager.make_directory(out_dir)
-            now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-            picture_name = f"{out_dir}/image[{now}].png"
-
             # Save the image.
             plt.imsave(picture_name, np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
 
@@ -260,8 +266,8 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
             plt.imshow(np.array(np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0, 255), np.uint8), cmap="gray")
             plt.show()
 
-    # Display the final generated image if verbose is True.
-    if verbose:
+    # Display the final generated image if verbose is True and picture_name is assigned
+    if verbose and picture_name is not None:
         plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
         plt.show()
 

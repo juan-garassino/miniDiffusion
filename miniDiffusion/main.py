@@ -3,6 +3,8 @@ from colorama import Fore, Style
 import os
 import numpy as np
 import time
+import sys
+
 
 from miniDiffusion.models.model import Unet
 from miniDiffusion.models.losses import loss_fn
@@ -54,24 +56,24 @@ k = unet(test_images, test_timestamps)
 
 rng = 0
 
-def train_step(batch):
+def train_step(batch, verbose=False):
     rng, tsrng = np.random.randint(0, 100000, size=(2,))
 
-    print("\n🔽 " + Fore.GREEN + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL)
+    if verbose:
+        print("\n🔽 " + Fore.GREEN + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL, end="")
 
     timestep_values = generate_timestamp(tsrng, batch.shape[0])
 
-    print("\n🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL)
+    if verbose:
+        print("\r🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL, end="")
 
-    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=True)
+    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=verbose)
 
     with GradientTape() as tape:
         prediction = unet(noised_image, timestep_values)
-
         loss_value = loss_fn(noise, prediction)
 
     gradients = tape.gradient(loss_value, unet.trainable_variables)
-
     optimizer.apply_gradients(zip(gradients, unet.trainable_variables))
 
     return loss_value
@@ -93,7 +95,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
 
     for i, batch in enumerate(iter(dataset)):
         # run the training loop
-        loss = train_step(batch)
+        loss = train_step(batch, verbose=True)
         losses.append(loss)
         bar.update(i, values=[("loss", loss)])
 
@@ -119,7 +121,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
         + Style.RESET_ALL
     )
 
-denoise_process(unet)  # Invalid denoising environment specified.
+denoise_process(unet, denoising_method="DDPM", timesteps=100, starting_noise=None, verbose=True, save_interval=None)
 
 # denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None)
 

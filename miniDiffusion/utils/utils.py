@@ -8,17 +8,19 @@ from miniDiffusion.managers.manager import Manager
 
 from miniDiffusion.utils.params import one_minus_sqrt_alpha_bar, sqrt_alpha_bar, timesteps
 
-def set_key(key):
+def set_key(key, verbose=False):
     """
     Sets the random number generator (RNG) seed for NumPy.
 
     Parameters:
     - key: int, seed value for initializing the RNG.
+    - verbose: bool, whether to display descriptive messages.
     """
     np.random.seed(key)
-    # Print descriptive message
-    print("\n🔽 " + Fore.GREEN + "RNG seed has been successfully set for NumPy" + Style.RESET_ALL)
 
+    # Print descriptive message if verbose is True
+    if verbose:
+        print("\n🔽 " + Fore.GREEN + "RNG seed has been successfully set for NumPy" + Style.RESET_ALL)
 
 def forward_noise(key, x_0, t, verbose=False):
     """
@@ -83,13 +85,14 @@ def forward_noise(key, x_0, t, verbose=False):
 
     return noisy_image, noise
 
-def generate_timestamp(key, num):
+def generate_timestamp(key, num, verbose=False):
     """
     Generates a batch of sample timestamps.
 
     Parameters:
     - key: int, seed value for initializing the RNG.
     - num: int, number of timestamps to generate.
+    - verbose: bool, whether to display descriptive messages.
 
     Returns:
     - timestamps: TensorFlow tensor, batch of generated timestamps.
@@ -100,7 +103,8 @@ def generate_timestamp(key, num):
     # Generate timestamps
     timestamps = tf.random.uniform(shape=[num], minval=0, maxval=timesteps, dtype=tf.int32)
 
-    # Print descriptive message
-    print("\n🔽 " + Fore.GREEN + "Batch of timestamps has been successfully generated" + Style.RESET_ALL)
+    # Print descriptive message if verbose is True
+    if verbose:
+        print("\n🔽 " + Fore.GREEN + "Batch of timestamps has been successfully generated" + Style.RESET_ALL)
 
     return timestamps

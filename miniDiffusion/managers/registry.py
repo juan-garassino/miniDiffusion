@@ -42,7 +42,6 @@ def some_steps(dataset):
 
     plt.show()
 
-
 # Save a GIF using logged images
 def save_gif(img_list, path="", interval=200):
     # Transform images from [-1,1] to [0, 255]

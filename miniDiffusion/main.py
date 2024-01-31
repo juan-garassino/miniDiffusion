@@ -65,7 +65,7 @@ def train_step(batch, verbose=False):
     timestep_values = generate_timestamp(tsrng, batch.shape[0])
 
     if verbose:
-        print("\r🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL, end="")
+        print("\n🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL, end="")
 
     noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=verbose)
 
@@ -95,7 +95,7 @@ for epoch in range(1, int(os.environ.get("EPOCHS")) + 1):
 
     for i, batch in enumerate(iter(dataset)):
         # run the training loop
-        loss = train_step(batch, verbose=True)
+        loss = train_step(batch, verbose=False)
         losses.append(loss)
         bar.update(i, values=[("loss", loss)])
 

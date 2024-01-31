@@ -29,11 +29,11 @@ class Manager():
                   Style.RESET_ALL)
 
     @staticmethod  # They do not require a class instance creation
-    def working_directory(subdirectory):
+    def working_directory(subdirectory, colab=0):
         directory = os.path.join(os.environ.get('HOME'), 'Results',
                                  'miniDiffusion', subdirectory)
 
-        if int(os.environ.get('COLAB')) == 1:
+        if int(colab) == 1:
             directory = os.path.join(os.environ.get('HOME'), '..', 'content',
                                      'results', 'miniDiffusion', subdirectory)
 
@@ -53,11 +53,11 @@ class Manager():
                 raise
 
     @staticmethod  # They do not require a class instance creation
-    def get_datasets():
+    def get_datasets(dataset='fashion_mnist', samples=1000, batch_size=64):
         # Load the MNIST dataset
         data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
 
-        train_ds = tensorflow_datasets.load(name=os.environ.get('DATA'),
+        train_ds = tensorflow_datasets.load(name=dataset,
                                             data_dir=data_dir,
                                             shuffle_files=True,
                                             as_supervised=True,
@@ -68,7 +68,7 @@ class Manager():
         # Normalize to [-1, 1], shuffle and batch
         train_ds = train_ds[0].map(preprocess, tf.data.AUTOTUNE)
 
-        train_ds = train_ds.take(SAMPLES).shuffle(5000).cache().batch(BATCH_SIZE).prefetch(
+        train_ds = train_ds.take(samples).shuffle(5000).cache().batch(batch_size).prefetch(
             tf.data.AUTOTUNE).cache()
 
         print("\n⏹ " + Fore.GREEN +
@@ -77,7 +77,7 @@ class Manager():
 
         print(
             "\n🔽 " + Fore.GREEN +
-            f"Data has been sucessfully loaded from {os.environ.get('DATA')} dataset"
+            f"Data has been sucessfully loaded from {dataset} dataset"
             + Style.RESET_ALL)
 
         # Return numpy arrays instead of TF tensors while iterating

@@ -8,14 +8,14 @@ from colorama import Fore, Style
 from datetime import datetime
 
 
-def some_steps(dataset):
+def some_steps(dataset, colab=0):
     # Let us visualize the output image at a few timestamps
     sample_mnist = next(iter(dataset))[0]
 
     out_dir = os.path.join(os.environ.get("HOME"), "Results", "miniDiffusion",
                            "snapshots")
 
-    if int(os.environ.get("COLAB")) == 1:
+    if int(colab) == 1:
 
         out_dir = os.path.join(os.environ.get("HOME"), "..", "content",
                                "results", "miniDiffusion", "snapshots")

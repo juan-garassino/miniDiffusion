@@ -13,7 +13,7 @@ import tensorflow as tf
 
 class Manager():
 
-    def __init__(self, network, optimizer, data):
+    def __init__(self):#, network, optimizer, data):
         pass
         # self.data = data
 

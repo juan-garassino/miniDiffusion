@@ -178,9 +178,9 @@ def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise
         # Store the generated image for later use.
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        # Save and display the current generated image at specified intervals.
-        if save_interval is not None and i % save_interval == 0:
-            # Display the generated image.
+        # Save the current generated image at specified intervals and at the end.
+        if save_interval is not None and (i % save_interval == 0 or i == timesteps - 2):
+            # Display the generated image if verbose is True.
             if verbose:
                 plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255)[:, :, 0], np.uint8), cmap="gray")
                 plt.show()
@@ -195,7 +195,7 @@ def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise
             Image.fromarray(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)).save(picture_name)
 
             # Print the status message.
-            print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + "\n" + Style.RESET_ALL)
+            print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
 
     # Generate and save the final animation as a GIF.
     save_gif(img_list + ([img_list[-1]] * 100), picture_name, interval=20)
@@ -206,7 +206,7 @@ def denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise
         plt.show()
         print("\n🔽 " + Fore.BLUE + f"Generated gif {picture_name.split('/')[-1]} at {out_dir}" + "\n" + Style.RESET_ALL)
 
-def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=False, save_interval=None):
+def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, inference_timesteps = 10, verbose=False, save_interval=None):
     """
     Performs the Denoising Diffusion Implicit Model process.
 
@@ -224,7 +224,6 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
     print("\n⏹ " + Fore.GREEN + "Denoising Diffusion Implicit Model started" + Style.RESET_ALL)
 
     # Define the number of inference steps.
-    inference_timesteps = 10
     inference_range = range(0, timesteps, timesteps // inference_timesteps)
 
     # Initialize a random noise image if starting_noise is not provided.
@@ -242,13 +241,8 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
         x = ddim_denoise(x, pred_noise, t, 0)
         img_list.append(np.squeeze(np.squeeze(x, 0), -1))
 
-        # Save and display the generated image at specified intervals.
-        if save_interval is not None and index % save_interval == 0:
-            # Display the generated image.
-            if verbose:
-                plt.imshow(np.array(np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0, 255), np.uint8), cmap="gray")
-                plt.show()
-
+        # Save the generated image at specified intervals and at the end.
+        if save_interval is not None and (index % save_interval == 0 or index == inference_timesteps - 1):
             # Define the directory and filename for saving the image.
             out_dir = Manager.working_directory('snapshots')
             Manager.make_directory(out_dir)
@@ -256,25 +250,35 @@ def denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None
             picture_name = f"{out_dir}/image[{now}].png"
 
             # Save the image.
-            plt.savefig(picture_name)
+            plt.imsave(picture_name, np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
 
             # Print the status message.
-            print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + "\n" + Style.RESET_ALL)
+            print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
+
+        # Display the generated image if verbose is True.
+        if verbose:
+            plt.imshow(np.array(np.clip((np.squeeze(np.squeeze(x, 0), -1) + 1) * 127.5, 0, 255), np.uint8), cmap="gray")
+            plt.show()
 
     # Display the final generated image if verbose is True.
     if verbose:
         plt.imshow(np.array(np.clip((x[0] + 1) * 127.5, 0, 255), np.uint8)[:, :, 0], cmap="gray")
         plt.show()
-        #print("\n🔽 " + Fore.BLUE + f"Generated picture {picture_name.split('/')[-1]} @ {out_dir}" + Style.RESET_ALL)
 
-# Main function to denoise based on environmental variable
-def denoise_process(unet):
-    if os.environ.get('DENOISING') == "DDPM":
-        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
-    elif os.environ.get('DENOISING') == "DDIM":
-        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=2)
-    elif os.environ.get('DENOISING') == "BOTH":
-        denoising_diffusion_probabilistic_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
-        denoising_diffusion_implicit_models(unet, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
+def denoise_process(unet, denoising_method="DDPM", timesteps=100, starting_noise=None, verbose=True, save_interval=None):
+
+    if denoising_method == "DDPM":
+        denoising_diffusion_probabilistic_models(unet, timesteps=timesteps, starting_noise=starting_noise, verbose=verbose, save_interval=save_interval)
+
+    elif denoising_method == "DDIM":
+        denoising_diffusion_implicit_models(unet, timesteps=timesteps, starting_noise=starting_noise, verbose=verbose, save_interval=save_interval)
+
+    elif denoising_method == "BOTH":
+        denoising_diffusion_probabilistic_models(unet, timesteps=timesteps, starting_noise=starting_noise, verbose=verbose, save_interval=save_interval)
+        denoising_diffusion_implicit_models(unet, timesteps=timesteps, starting_noise=starting_noise, verbose=verbose, save_interval=save_interval)
+
     else:
-        print("Invalid denoising environment specified.")
+        print("Invalid denoising method specified.")
+
+# Example usage:
+# denoise_process(unet, denoising_method="DDPM", timesteps=100, starting_noise=None, verbose=True, save_interval=None)

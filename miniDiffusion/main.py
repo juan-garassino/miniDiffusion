@@ -1,22 +1,14 @@
 from turtle import width
 from colorama import Fore, Style
-import os
 import numpy as np
 import time
-import sys
 import argparse
 
 from miniDiffusion.models.model import Unet
 from miniDiffusion.models.losses import loss_fn
 from miniDiffusion.models.optimizer import optimizer
-
-from miniDiffusion.managers.denoiser import (
-    denoising_diffusion_implicit_models,
-    denoising_diffusion_probabilistic_models,
-    denoise_process,
-)
+from miniDiffusion.managers.denoiser import denoise_process
 from miniDiffusion.managers.manager import Manager
-
 from miniDiffusion.utils.utils import generate_timestamp, forward_noise
 
 from tensorflow import GradientTape, get_logger, Variable
@@ -68,7 +60,7 @@ if __name__ == "__main__":
 
     # Printing parsed arguments with color and emojis in one line
     print(
-        f"\n🆗{' '.join([f'{Fore.MAGENTA}{k}:{v}' for k, v in vars(args).items()])}\n{Style.RESET_ALL}"
+        f"\n🆗 {' '.join([f'{Fore.MAGENTA}{k}:{v}' for k, v in vars(args).items()])}\n{Style.RESET_ALL}"
     )
 
     get_logger().setLevel("ERROR")  # Suppressing tf.hub warnings
@@ -123,7 +115,6 @@ if __name__ == "__main__":
 
         print("✅ " + Fore.CYAN + "Saved checkpoint for step {}: {}".format(
             int(checkpoint.step), save_path) + Style.RESET_ALL)
-
 
         avg = np.mean(losses)
 

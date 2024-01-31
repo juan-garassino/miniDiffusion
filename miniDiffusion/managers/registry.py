@@ -7,7 +7,6 @@ import os
 from colorama import Fore, Style
 from datetime import datetime
 
-
 def some_steps(dataset, colab=0):
     # Let us visualize the output image at a few timestamps
     sample_mnist = next(iter(dataset))[0]

@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
     Manager.make_directory(output_directory)  # Makes the directory
 
-    manager = Manager(unet, optimizer, args.DATA)  # Initialize the project manager
+    manager = Manager() # unet, optimizer, args.DATA)  # Initialize the project manager
 
     dataset = manager.get_datasets(dataset='mnist', samples=50000, batch_size=64)  # Project manager loads the data
 

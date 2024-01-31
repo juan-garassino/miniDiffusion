@@ -22,7 +22,7 @@ def set_key(key, verbose=False):
     if verbose:
         print("\n🔽 " + Fore.GREEN + "RNG seed has been successfully set for NumPy" + Style.RESET_ALL)
 
-def forward_noise(key, x_0, t, verbose=False):
+def forward_noise(key, x_0, timestep, verbose=False):
     """
     Adds noise to the input image based on the given timestamp.
 
@@ -36,13 +36,14 @@ def forward_noise(key, x_0, t, verbose=False):
     - noisy_image: numpy array, noisy version of the input image.
     - noise: numpy array, generated noise.
     """
+
     set_key(key)
 
     noise = np.random.normal(size=x_0.shape)
 
-    reshaped_sqrt_alpha_bar_t = np.reshape(np.take(sqrt_alpha_bar, t), (-1, 1, 1, 1))
+    reshaped_sqrt_alpha_bar_t = np.reshape(np.take(sqrt_alpha_bar, timestep), (-1, 1, 1, 1))
 
-    reshaped_one_minus_sqrt_alpha_bar_t = np.reshape(np.take(one_minus_sqrt_alpha_bar, t), (-1, 1, 1, 1))
+    reshaped_one_minus_sqrt_alpha_bar_t = np.reshape(np.take(one_minus_sqrt_alpha_bar, timestep), (-1, 1, 1, 1))
 
     noisy_image = (reshaped_sqrt_alpha_bar_t * x_0 + reshaped_one_minus_sqrt_alpha_bar_t * noise)
 

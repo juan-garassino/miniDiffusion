@@ -4,38 +4,17 @@ import numpy as np
 import time
 import argparse
 
-from miniDiffusion.models.model import Unet
-from miniDiffusion.models.losses import loss_fn
-from miniDiffusion.models.optimizer import optimizer
+from miniDiffusion.model.model import Unet
+from miniDiffusion.model.compiler.losses import loss_fn
+from miniDiffusion.model.compiler.optimizer import optimizer
 from miniDiffusion.managers.denoiser import denoise_process
 from miniDiffusion.managers.manager import Manager
-from miniDiffusion.utils.utils import generate_timestamp, forward_noise
+from miniDiffusion.tools.utils import generate_noising_timestamps, forward_noise
 
 from tensorflow import GradientTape, get_logger, Variable
 from tensorflow.keras.utils import Progbar
 from tensorflow.train import Checkpoint, CheckpointManager
-
-def train_step(batch, verbose=False):
-    rng, tsrng = np.random.randint(0, 100000, size=(2,))
-
-    if verbose:
-        print("\n🔽 " + Fore.GREEN + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL, end="")
-
-    timestep_values = generate_timestamp(tsrng, batch.shape[0], verbose=False)
-
-    if verbose:
-        print("\n🔽 " + Fore.GREEN + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL, end="")
-
-    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=False)
-
-    with GradientTape() as tape:
-        prediction = unet(noised_image, timestep_values)
-        loss_value = loss_fn(noise, prediction)
-
-    gradients = tape.gradient(loss_value, unet.trainable_variables)
-    optimizer.apply_gradients(zip(gradients, unet.trainable_variables))
-
-    return loss_value
+import tensorflow as tf
 
 def parse_arguments():
 
@@ -49,18 +28,43 @@ def parse_arguments():
     parser.add_argument("--N_SAMPLES", type=int, default=500, help="Description of N_SAMPLES")
     parser.add_argument("--BATCH_SIZE", type=int, default=64, help="Description of BATCH_SIZE")
     parser.add_argument("--BUFFER", type=int, default=128, help="Description of BUFFER")
-    parser.add_argument("--TIMESTEPS", type=int, default=400, help="Description of TIMESTEPS")
+    parser.add_argument("--TOTAL_TIMESTEPS", type=int, default=400, help="Description of TOTAL_TIMESTEPS")
+    parser.add_argument("--INFERENCE_TIMESTEPS", type=int, default=10, help="Description of INFERENCE_STEPS")
+    parser.add_argument("--SAVE_INTERVAL", type=int, default=10, help="Description of SAVE_INTERVAL")
+    parser.add_argument("--VERBOSE", type=int, default=0, help="Description of VERBOSE")
 
     args = parser.parse_args()
     return args
 
-if __name__ == "__main__":
+def train_step(unet, batch, verbose=True):
+    rng, tsrng = np.random.randint(0, 100000, size=(2,))
+
+    if verbose:
+        print("\n🔽 " + Fore.BLUE + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL)
+
+    timestep_values = generate_noising_timestamps(tsrng, batch.shape[0], verbose=True) # ver aca como funciona esto
+
+    if verbose:
+        print("\n🔽 " + Fore.BLUE + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL)
+
+    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=True)
+
+    with GradientTape() as tape:
+        prediction = unet(noised_image, timestep_values)
+        loss_value = loss_fn(noise, prediction)
+
+    gradients = tape.gradient(loss_value, unet.trainable_variables)
+    optimizer.apply_gradients(zip(gradients, unet.trainable_variables))
+
+    return loss_value
+
+def main_loop():
 
     args = parse_arguments()
 
     # Printing parsed arguments with color and emojis in one line
     print(
-        f"\n🆗 {' '.join([f'{Fore.MAGENTA}{k}:{v}' for k, v in vars(args).items()])}\n{Style.RESET_ALL}"
+        f"\n🆗 {' '.join([f'{Fore.MAGENTA}{k}:{v}' for k, v in vars(args).items()])}{Style.RESET_ALL}"
     )
 
     get_logger().setLevel("ERROR")  # Suppressing tf.hub warnings
@@ -73,7 +77,7 @@ if __name__ == "__main__":
 
     manager = Manager() # unet, optimizer, args.DATA)  # Initialize the project manager
 
-    dataset = manager.get_datasets(dataset='mnist', samples=50000, batch_size=64)  # Project manager loads the data
+    dataset = manager.get_datasets(dataset='mnist', samples=args.N_SAMPLES, batch_size=args.BATCH_SIZE)  # Project manager loads the data
 
     checkpoint = Checkpoint(step=Variable(1), optimizer=optimizer, model=unet)  # Creates the checkpoint
 
@@ -83,7 +87,7 @@ if __name__ == "__main__":
 
     test_images = np.ones([1, 32, 32, 1])  # initialize the model in the memory of our GPU
 
-    test_timestamps = generate_timestamp(0, 1, verbose=False)
+    test_timestamps = generate_noising_timestamps(0, 1, verbose=True)
 
     k = unet(test_images, test_timestamps)
 
@@ -100,12 +104,11 @@ if __name__ == "__main__":
         print(
             "\n⏩ "
             + Fore.MAGENTA
-            + f"Training diffusion model for epoch {epoch} of {int(args.EPOCHS)}\n" + "\n", end="",
-        )
+            + f"Training diffusion model for epoch {epoch} of {int(args.EPOCHS)}\n", end="")
 
         for i, batch in enumerate(iter(dataset)):
             # run the training loop
-            loss = train_step(batch, verbose=False)
+            loss = train_step(unet, batch, verbose=True)
             losses.append(loss)
             bar.update(i, values=[("loss", loss)])
 
@@ -130,4 +133,16 @@ if __name__ == "__main__":
             + Style.RESET_ALL
         )
 
-    denoise_process(unet, denoising_method=args.DENOISING, timesteps=100, starting_noise=None, verbose=True, save_interval=None)
+    denoise_process(unet, denoising_method=args.DENOISING, total_timesteps=args.TOTAL_TIMESTEPS, inference_steps=args.INFERENCE_TIMESTEPS, verbose=args.VERBOSE, save_interval=args.SAVE_INTERVAL)
+
+if __name__ == '__main__':
+    try:
+
+        main_loop()
+
+    except:
+        import ipdb, traceback, sys
+
+        extype, value, tb = sys.exc_info()
+        traceback.print_exc()
+        ipdb.post_mortem(tb)

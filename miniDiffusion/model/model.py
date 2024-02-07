@@ -1,8 +1,50 @@
-import tensorflow as tf
-from tensorflow.keras import layers
+"""
+Advanced U-Net Architecture for Deep Learning Applications
+
+This Python file presents an implementation of an advanced U-Net model, a widely-used
+architecture in deep learning, particularly for tasks like image segmentation and
+generative models. The U-Net architecture is known for its effectiveness in capturing
+both local and global context of the input data, making it suitable for detailed
+analysis tasks.
+
+Key Components:
+
+1. Unet: This class implements the U-Net architecture, which features a symmetric
+   structure with downsampling and upsampling paths connected by skip connections.
+   The model efficiently combines local and global information, enabling precise
+   localization in tasks such as image segmentation.
+
+Highlights:
+
+- The U-Net architecture in this implementation is enhanced with several advanced
+  features, including:
+  - Resnet Blocks: Incorporates residual learning concepts to ease the training of deep networks.
+  - Attention Mechanisms: Employs both linear and traditional attention mechanisms to
+    allow the model to focus on relevant parts of the input.
+  - Time Embeddings: Optional incorporation of time embeddings for models that require
+    temporal information processing, useful in generative tasks.
+
+- The architecture is highly customizable, allowing adjustments in layer dimensions,
+  number of channels, and depth, catering to a wide range of applications.
+
+Usage:
+
+This U-Net model can be integrated into various deep learning workflows, particularly
+in TensorFlow-based environments. It can be adapted for a variety of tasks that require
+detailed understanding and processing of spatial data, such as medical image analysis,
+autonomous vehicle perception systems, and more.
+
+The modularity of the architecture makes it a versatile tool in the deep learning
+practitioner's toolkit, allowing for experimentation and adaptation to specific task
+requirements.
+"""
+
+# Following this comment, the implementation of the Unet class and any supporting classes or functions would be placed.
+
+
 import tensorflow.keras.layers as nn
 import tensorflow_addons as tfa
-from miniDiffusion.models.helpers import (
+from miniDiffusion.model.custom_layers.layers import (
     default,
     SinusoidalPosEmb,
     GELU,
@@ -12,12 +54,12 @@ from miniDiffusion.models.helpers import (
     Upsample,
     PreNorm,
 )
-from miniDiffusion.models.blocks import ResnetBlock, LinearAttention, Attention
+from miniDiffusion.model.custom_blocks.blocks import ResnetBlock, LinearAttention, Attention
 from tensorflow.keras import Model, Sequential
 from functools import partial
 import tensorflow as tf
 
-class Unet(tf.keras.Model):
+class Unet(Model):
     def __init__(
         self,
         dim=64,
@@ -33,11 +75,11 @@ class Unet(tf.keras.Model):
 
         # Initialization of model dimensions and configurations.
         self.channels = channels  # Number of input/output channels.
-        init_dim = init_dim or dim // 3 * 2  # Initial dimension for convolution.
+        init_dim = default(init_dim, dim // 3 * 2)  # Initial dimension for convolution.
 
         # Initial convolution layer with a kernel size of 7.
-        self.init_conv = layers.Conv3D(
-            filters=init_dim, kernel_size=(7, 7, 7), strides=1, padding="SAME"
+        self.init_conv = nn.Conv2D(
+            filters=init_dim, kernel_size=7, strides=1, padding="SAME"
         )
 
         # Calculate the dimensions for each stage of the model based on multipliers.
@@ -52,12 +94,12 @@ class Unet(tf.keras.Model):
         self.sinusoidal_cond_mlp = sinusoidal_cond_mlp
 
         # MLP for time embeddings with sinusoidal positional embeddings and GELU activation.
-        self.time_mlp = tf.keras.Sequential(
+        self.time_mlp = Sequential(
             [
                 SinusoidalPosEmb(dim),
-                layers.Dense(units=time_dim),
-                layers.Activation('gelu'),
-                layers.Dense(units=time_dim),
+                nn.Dense(units=time_dim),
+                GELU(),
+                nn.Dense(units=time_dim),
             ],
             name="time embeddings",
         )
@@ -101,13 +143,13 @@ class Unet(tf.keras.Model):
 
         # Output dimension calculation, considering if variance is learned.
         default_out_dim = channels * (1 if not learned_variance else 2)
-        self.out_dim = out_dim or default_out_dim
+        self.out_dim = default(out_dim, default_out_dim)
 
         # Final convolutional layer for generating output.
-        self.final_conv = tf.keras.Sequential(
+        self.final_conv = Sequential(
             [
                 block_klass(dim * 2, dim),
-                layers.Conv3D(filters=self.out_dim, kernel_size=1, strides=1),
+                nn.Conv2D(filters=self.out_dim, kernel_size=1, strides=1),
             ],
             name="output",
         )

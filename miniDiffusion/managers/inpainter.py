@@ -1,3 +1,5 @@
+import numpy as np
+
 def inpaint_area(model, input_image, n, x, y):
     """
     Inpaints the specified nxn area of the input image using the model.

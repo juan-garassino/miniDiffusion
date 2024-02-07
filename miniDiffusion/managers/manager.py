@@ -5,8 +5,8 @@ import errno
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-from miniDiffusion.utils.preprocess import preprocess
-from miniDiffusion.utils.params import BATCH_SIZE, SAMPLES
+from miniDiffusion.tools.preprocess import preprocess
+from miniDiffusion.tools.params import BATCH_SIZE, SAMPLES
 
 import tensorflow_datasets as tensorflow_datasets
 import tensorflow as tf
@@ -72,12 +72,12 @@ class Manager():
             tf.data.AUTOTUNE).cache()
 
         print("\n⏹ " + Fore.GREEN +
-            f"Data has been sucessfully preproccessed" +
+            f" Data has been sucessfully preproccessed" +
             Style.RESET_ALL)
 
         print(
             "\n🔽 " + Fore.GREEN +
-            f"Data has been sucessfully loaded from {dataset} dataset"
+            f" Data has been sucessfully loaded from {dataset} dataset"
             + Style.RESET_ALL)
 
         # Return numpy arrays instead of TF tensors while iterating

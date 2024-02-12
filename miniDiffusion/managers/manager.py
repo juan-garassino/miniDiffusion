@@ -94,14 +94,14 @@ class Manager:
         print(
             "\n⏹ "
             + Fore.GREEN
-            + f" Data has been sucessfully preproccessed"
+            + f"Data has been sucessfully preproccessed"
             + Style.RESET_ALL
         )
 
         print(
             "\n🔽 "
             + Fore.GREEN
-            + f" Data has been sucessfully loaded from {dataset} dataset"
+            + f"Data has been sucessfully loaded from {dataset} dataset"
             + Style.RESET_ALL
         )
 

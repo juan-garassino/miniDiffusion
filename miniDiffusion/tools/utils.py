@@ -7,7 +7,12 @@ from PIL import Image
 import os
 
 from miniDiffusion.managers.manager import Manager
-from miniDiffusion.tools.params import one_minus_sqrt_alpha_bar, sqrt_alpha_bar, timesteps
+from miniDiffusion.tools.params import (
+    one_minus_sqrt_alpha_bar,
+    sqrt_alpha_bar,
+    timesteps,
+)
+
 
 def set_noise_generator_seed(seed, verbose=False):
     """
@@ -25,7 +30,13 @@ def set_noise_generator_seed(seed, verbose=False):
 
     # Print descriptive message if verbose is True
     if verbose:
-        print("\n🔽 " + Fore.GREEN + "Noise generator seed has been set for reproducibility" + Style.RESET_ALL)
+        print(
+            "\n🔽 "
+            + Fore.GREEN
+            + "Noise generator seed has been set for reproducibility"
+            + Style.RESET_ALL
+        )
+
 
 def generate_noising_timestamps(seed, num, verbose=False):
     """
@@ -47,15 +58,28 @@ def generate_noising_timestamps(seed, num, verbose=False):
     set_noise_generator_seed(seed)
 
     # Generate timestamps
-    timestamps = tf.random.uniform(shape=[num], minval=0, maxval=timesteps, dtype=tf.int32)
+    timestamps = tf.random.uniform(
+        shape=[num], minval=0, maxval=timesteps, dtype=tf.int32
+    )
 
     # Print descriptive message if verbose is True
     if verbose:
-        print("\n🔽 " + Fore.GREEN + "Batch of timestamps has been successfully generated" + Style.RESET_ALL)
+        print(
+            "\n🔽 "
+            + Fore.GREEN
+            + "Batch of timestamps has been successfully generated"
+            + Style.RESET_ALL
+        )
 
-        print("\n🔽 " + Fore.BLUE + f"Generated Timestamps: {timestamps}" + Style.RESET_ALL)
+        print(
+            "\n🔽 "
+            + Fore.BLUE
+            + f"Generated Timestamps: {timestamps[0]} ... many ... {timestamps[-1]}"
+            + Style.RESET_ALL
+        )
 
     return timestamps
+
 
 def forward_noise(key, x_0, timestep, colab=0, verbose=False):
     """
@@ -76,34 +100,42 @@ def forward_noise(key, x_0, timestep, colab=0, verbose=False):
 
     noise = np.random.normal(size=x_0.shape)
 
-    reshaped_sqrt_alpha_bar_t = np.reshape(np.take(sqrt_alpha_bar, timestep), (-1, 1, 1, 1))
-    reshaped_one_minus_sqrt_alpha_bar_t = np.reshape(np.take(one_minus_sqrt_alpha_bar, timestep), (-1, 1, 1, 1))
+    reshaped_sqrt_alpha_bar_t = np.reshape(
+        np.take(sqrt_alpha_bar, timestep), (-1, 1, 1, 1)
+    )
+    reshaped_one_minus_sqrt_alpha_bar_t = np.reshape(
+        np.take(one_minus_sqrt_alpha_bar, timestep), (-1, 1, 1, 1)
+    )
 
-    noisy_image = reshaped_sqrt_alpha_bar_t * x_0 + reshaped_one_minus_sqrt_alpha_bar_t * noise
+    noisy_image = (
+        reshaped_sqrt_alpha_bar_t * x_0 + reshaped_one_minus_sqrt_alpha_bar_t * noise
+    )
 
     if verbose:
         # Select one image from the batch
-        image_index = 0  # You can change this index to visualize a different image from the batch
+        image_index = (
+            0  # You can change this index to visualize a different image from the batch
+        )
         single_noise = noise[image_index]
         single_noisy_image = noisy_image[image_index]
 
         # Plot the selected image, its corresponding noise, and the noisy version
         fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
-        axes[0].imshow(x_0[image_index].squeeze(), cmap='gray')
-        axes[0].set_title('Original Image')
-        axes[0].axis('off')
+        axes[0].imshow(x_0[image_index].squeeze(), cmap="gray")
+        axes[0].set_title("Original Image")
+        axes[0].axis("off")
 
-        axes[1].imshow(single_noise.squeeze(), cmap='gray')
-        axes[1].set_title(f'Noise {timestep}')
-        axes[1].axis('off')
+        axes[1].imshow(single_noise.squeeze(), cmap="gray")
+        axes[1].set_title(f"Noise {timestep}")
+        axes[1].axis("off")
 
-        axes[2].imshow(single_noisy_image.squeeze(), cmap='gray')
-        axes[2].set_title('Noisy Image')
-        axes[2].axis('off')
+        axes[2].imshow(single_noisy_image.squeeze(), cmap="gray")
+        axes[2].set_title("Noisy Image")
+        axes[2].axis("off")
 
         # Define the directory and filename for saving the image
-        out_dir = Manager.working_directory('training_data', colab=colab)
+        out_dir = Manager.working_directory("training_data", colab=colab)
         Manager.make_directory(out_dir)
         now = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
         plot_filename = f"{out_dir}/noisy_image_plot[{now}].png"
@@ -115,11 +147,20 @@ def forward_noise(key, x_0, timestep, colab=0, verbose=False):
         plt.close()
 
         # Print descriptive message
-        print("\n🔽 " + Fore.GREEN + "Noisy image plot has been saved at: " + plot_filename + Style.RESET_ALL)
+        print(
+            "\n🔽 "
+            + Fore.GREEN
+            + "Noisy image plot has been saved at: "
+            + plot_filename
+            + Style.RESET_ALL
+        )
 
     return noisy_image, noise
 
-def generate_noising_picture_snapshots(dataset, steps_range=100, colab=0, verbose=False):
+
+def generate_noising_picture_snapshots(
+    dataset, steps_range=100, colab=0, verbose=False
+):
     """
     Generates and saves snapshots of noised images at different timesteps.
 
@@ -151,7 +192,7 @@ def generate_noising_picture_snapshots(dataset, steps_range=100, colab=0, verbos
             np.expand_dims(sample_mnist, 0),
             np.array([i]),
             colab=colab,
-            verbose=verbose
+            verbose=verbose,
         )
 
         # Create a new figure for each step
@@ -172,11 +213,19 @@ def generate_noising_picture_snapshots(dataset, steps_range=100, colab=0, verbos
         plt.savefig(snapshot_path)
         plt.close()
 
-    print("\n🔽 " + Fore.GREEN + f"Noised image snapshots saved in: {out_dir}" + Style.RESET_ALL)
+    print(
+        "\n🔽 "
+        + Fore.GREEN
+        + f"Noised image snapshots saved in: {out_dir}"
+        + Style.RESET_ALL
+    )
+
 
 def gif_from_directoty(input_path, output_path, interval=200):
     # Get a list of image file names in the input directory
-    image_files = [f for f in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, f))]
+    image_files = [
+        f for f in os.listdir(input_path) if os.path.isfile(os.path.join(input_path, f))
+    ]
 
     # Sort image files based on their names
     image_files.sort()
@@ -198,16 +247,23 @@ def gif_from_directoty(input_path, output_path, interval=200):
             append_images=imgs[1:],
             save_all=True,
             duration=interval,
-            loop=0
+            loop=0,
         )
 
-        print("\n🔽 " + Fore.BLUE +
-              f"Generated GIF of {len(imgs)} frames from {input_path} to {output_path}" +
-              Style.RESET_ALL)
+        print(
+            "\n🔽 "
+            + Fore.BLUE
+            + f"Generated GIF of {len(imgs)} frames from {input_path} to {output_path}"
+            + Style.RESET_ALL
+        )
     else:
-        print("\n🔺 " + Fore.RED +
-              f"Error: Output path {output_path} is a directory. Provide a valid file path." +
-              Style.RESET_ALL)
+        print(
+            "\n🔺 "
+            + Fore.RED
+            + f"Error: Output path {output_path} is a directory. Provide a valid file path."
+            + Style.RESET_ALL
+        )
+
 
 def save_gif(img_list, path="", interval=200):
     # Transform images from [-1,1] to [0, 255]
@@ -234,9 +290,13 @@ def save_gif(img_list, path="", interval=200):
         loop=0,
     )
 
-    print("\n🔽 " + Fore.BLUE +
-          "Genearted gif of {} frames from {}".format(interval, path) +
-          Style.RESET_ALL)
+    print(
+        "\n🔽 "
+        + Fore.BLUE
+        + "Genearted gif of {} frames from {}".format(interval, path)
+        + Style.RESET_ALL
+    )
+
 
 if __name__ == "__main__":
 
@@ -244,12 +304,14 @@ if __name__ == "__main__":
 
     manager = Manager()  # Initialize the project manager
 
-    dataset = manager.get_datasets(dataset='mnist', samples=1000, batch_size=1)  # Project manager loads the data
+    dataset = manager.get_datasets(
+        dataset="mnist", samples=1000, batch_size=1
+    )  # Project manager loads the data
 
     generate_noising_picture_snapshots(dataset, colab=0, steps_range=1000)
 
-    input_path='/Users/juan-garassino/Results/miniDiffusion/snapshots'
+    input_path = "/Users/juan-garassino/Results/miniDiffusion/snapshots"
 
-    output_path='/Users/juan-garassino/Results/animation.gif'
+    output_path = "/Users/juan-garassino/Results/animation.gif"
 
     gif_from_directoty(input_path, output_path, interval=200)

@@ -15,6 +15,7 @@ from tensorflow import GradientTape, get_logger, Variable
 from tensorflow.keras.utils import Progbar
 from tensorflow.train import Checkpoint, CheckpointManager
 
+
 def parse_arguments():
 
     parser = argparse.ArgumentParser(
@@ -74,7 +75,9 @@ def train_step(unet, batch, colab=0, verbose=False):
             + Style.RESET_ALL
         )
 
-    noised_image, noise = forward_noise(rng, batch, timestep_values, colab=colab, verbose=verbose)
+    noised_image, noise = forward_noise(
+        rng, batch, timestep_values, colab=colab, verbose=verbose
+    )
 
     with GradientTape() as tape:
         prediction = unet(noised_image, timestep_values)

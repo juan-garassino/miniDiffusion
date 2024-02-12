@@ -14,8 +14,6 @@ from miniDiffusion.tools.utils import generate_noising_timestamps, forward_noise
 from tensorflow import GradientTape, get_logger, Variable
 from tensorflow.keras.utils import Progbar
 from tensorflow.train import Checkpoint, CheckpointManager
-import tensorflow as tf
-
 
 def parse_arguments():
 

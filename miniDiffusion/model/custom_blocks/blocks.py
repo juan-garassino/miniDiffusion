@@ -49,6 +49,7 @@ from tensorflow import einsum
 from einops import rearrange
 import tensorflow as tf
 
+
 class Block(Layer):
     def __init__(self, dim, groups=8):
         super(Block, self).__init__()
@@ -82,6 +83,7 @@ class Block(Layer):
         # Apply the SiLU activation function to the transformed input.
         x = self.act(x)
         return x
+
 
 class ResnetBlock(Layer):
     def __init__(self, dim, dim_out, time_emb_dim=None, groups=8):
@@ -131,11 +133,12 @@ class ResnetBlock(Layer):
         # to the original input after possibly adjusting its dimensions.
         return h + self.res_conv(x)
 
+
 class LinearAttention(Layer):
     def __init__(self, dim, heads=4, dim_head=32):
         super(LinearAttention, self).__init__()
         # Scaling factor to normalize the query vectors.
-        self.scale = dim_head ** -0.5
+        self.scale = dim_head**-0.5
         # The number of attention heads.
         self.heads = heads
         # Total dimension of all heads combined.
@@ -187,11 +190,12 @@ class LinearAttention(Layer):
 
         return out
 
+
 class Attention(Layer):
     def __init__(self, dim, heads=4, dim_head=32):
         super(Attention, self).__init__()
         # Scaling factor for the query vectors to avoid large values during dot products.
-        self.scale = dim_head ** -0.5
+        self.scale = dim_head**-0.5
         # Number of attention heads. Multiple heads allow the model to jointly attend to
         # information from different representation subspaces.
         self.heads = heads

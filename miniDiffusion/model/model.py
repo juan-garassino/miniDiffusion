@@ -54,10 +54,15 @@ from miniDiffusion.model.custom_layers.layers import (
     Upsample,
     PreNorm,
 )
-from miniDiffusion.model.custom_blocks.blocks import ResnetBlock, LinearAttention, Attention
+from miniDiffusion.model.custom_blocks.blocks import (
+    ResnetBlock,
+    LinearAttention,
+    Attention,
+)
 from tensorflow.keras import Model, Sequential
 from functools import partial
 import tensorflow as tf
+
 
 class Unet(Model):
     def __init__(

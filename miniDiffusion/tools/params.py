@@ -3,7 +3,7 @@ import tensorflow as tf
 
 timesteps = 1000
 
-data="mnist"
+data = "mnist"
 
 # create a fixed beta schedule
 beta = np.linspace(0.0001, 0.02, timesteps)
@@ -19,7 +19,7 @@ one_minus_sqrt_alpha_bar = np.sqrt(1 - alpha_bar)
 target_size = (32, 32)
 channels = 1
 BATCH_SIZE = 64
-SAMPLES=500
+SAMPLES = 500
 
 # configure the GPU
 gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.8)

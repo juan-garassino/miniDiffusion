@@ -16,25 +16,47 @@ from tensorflow.keras.utils import Progbar
 from tensorflow.train import Checkpoint, CheckpointManager
 import tensorflow as tf
 
+
 def parse_arguments():
 
-    parser = argparse.ArgumentParser(description="Process arguments for running the Python file.")
+    parser = argparse.ArgumentParser(
+        description="Process arguments for running the Python file."
+    )
 
     # Define command-line arguments with defaults
     parser.add_argument("--COLAB", type=int, default=0, help="Description of COLAB")
     parser.add_argument("--EPOCHS", type=int, default=1, help="Description of EPOCHS")
-    parser.add_argument("--DENOISING", type=str, default='DDPM', help="Description of DENOISING")
-    parser.add_argument("--DATA", type=str, default='mnist', help="Description of DATA")
-    parser.add_argument("--N_SAMPLES", type=int, default=500, help="Description of N_SAMPLES")
-    parser.add_argument("--BATCH_SIZE", type=int, default=64, help="Description of BATCH_SIZE")
+    parser.add_argument(
+        "--DENOISING", type=str, default="DDPM", help="Description of DENOISING"
+    )
+    parser.add_argument("--DATA", type=str, default="mnist", help="Description of DATA")
+    parser.add_argument(
+        "--N_SAMPLES", type=int, default=500, help="Description of N_SAMPLES"
+    )
+    parser.add_argument(
+        "--BATCH_SIZE", type=int, default=64, help="Description of BATCH_SIZE"
+    )
     parser.add_argument("--BUFFER", type=int, default=128, help="Description of BUFFER")
-    parser.add_argument("--TOTAL_TIMESTEPS", type=int, default=400, help="Description of TOTAL_TIMESTEPS")
-    parser.add_argument("--INFERENCE_TIMESTEPS", type=int, default=10, help="Description of INFERENCE_STEPS")
-    parser.add_argument("--SAVE_INTERVAL", type=int, default=10, help="Description of SAVE_INTERVAL")
+    parser.add_argument(
+        "--TOTAL_TIMESTEPS",
+        type=int,
+        default=400,
+        help="Description of TOTAL_TIMESTEPS",
+    )
+    parser.add_argument(
+        "--INFERENCE_TIMESTEPS",
+        type=int,
+        default=10,
+        help="Description of INFERENCE_STEPS",
+    )
+    parser.add_argument(
+        "--SAVE_INTERVAL", type=int, default=10, help="Description of SAVE_INTERVAL"
+    )
     parser.add_argument("--VERBOSE", type=int, default=0, help="Description of VERBOSE")
 
     args = parser.parse_args()
     return args
+
 
 def train_step(unet, batch, verbose=True):
     rng, tsrng = np.random.randint(0, 100000, size=(2,))
@@ -42,10 +64,17 @@ def train_step(unet, batch, verbose=True):
     if verbose:
         print("\n🔽 " + Fore.BLUE + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL)
 
-    timestep_values = generate_noising_timestamps(tsrng, batch.shape[0], verbose=True) # ver aca como funciona esto
+    timestep_values = generate_noising_timestamps(
+        tsrng, batch.shape[0], verbose=True
+    )  # ver aca como funciona esto
 
     if verbose:
-        print("\n🔽 " + Fore.BLUE + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]" + Style.RESET_ALL)
+        print(
+            "\n🔽 "
+            + Fore.BLUE
+            + f"Timestep Values Shape: {timestep_values.shape} [{timestep_values[0]} ... {timestep_values[-1]}]"
+            + Style.RESET_ALL
+        )
 
     noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=True)
 
@@ -57,6 +86,7 @@ def train_step(unet, batch, verbose=True):
     optimizer.apply_gradients(zip(gradients, unet.trainable_variables))
 
     return loss_value
+
 
 def main_loop():
 
@@ -71,21 +101,33 @@ def main_loop():
 
     unet = Unet(channels=1)  # Create our unet model
 
-    output_directory = Manager.working_directory("checkpoints", colab=args.COLAB)  # Directory
+    output_directory = Manager.working_directory(
+        "checkpoints", colab=args.COLAB
+    )  # Directory
 
     Manager.make_directory(output_directory)  # Makes the directory
 
-    manager = Manager() # unet, optimizer, args.DATA)  # Initialize the project manager
+    manager = Manager()  # unet, optimizer, args.DATA)  # Initialize the project manager
 
-    dataset = manager.get_datasets(dataset='mnist', samples=args.N_SAMPLES, batch_size=args.BATCH_SIZE)  # Project manager loads the data
+    dataset = manager.get_datasets(
+        dataset="mnist", samples=args.N_SAMPLES, batch_size=args.BATCH_SIZE
+    )  # Project manager loads the data
 
-    checkpoint = Checkpoint(step=Variable(1), optimizer=optimizer, model=unet)  # Creates the checkpoint
+    checkpoint = Checkpoint(
+        step=Variable(1), optimizer=optimizer, model=unet
+    )  # Creates the checkpoint
 
-    checkpoint_manager = CheckpointManager(checkpoint, output_directory, max_to_keep=3)  # Creates a checkpoint manager
+    checkpoint_manager = CheckpointManager(
+        checkpoint, output_directory, max_to_keep=3
+    )  # Creates a checkpoint manager
 
-    manager.train_and_checkpoint(checkpoint, checkpoint_manager)  # Checkpoint manager loads the last checkpoint
+    manager.train_and_checkpoint(
+        checkpoint, checkpoint_manager
+    )  # Checkpoint manager loads the last checkpoint
 
-    test_images = np.ones([1, 32, 32, 1])  # initialize the model in the memory of our GPU
+    test_images = np.ones(
+        [1, 32, 32, 1]
+    )  # initialize the model in the memory of our GPU
 
     test_timestamps = generate_noising_timestamps(0, 1, verbose=True)
 
@@ -104,7 +146,9 @@ def main_loop():
         print(
             "\n⏩ "
             + Fore.MAGENTA
-            + f"Training diffusion model for epoch {epoch} of {int(args.EPOCHS)}\n", end="")
+            + f"Training diffusion model for epoch {epoch} of {int(args.EPOCHS)}\n",
+            end="",
+        )
 
         for i, batch in enumerate(iter(dataset)):
             # run the training loop
@@ -116,15 +160,21 @@ def main_loop():
 
         save_path = checkpoint_manager.save()
 
-        print("✅ " + Fore.CYAN + "Saved checkpoint for step {}: {}".format(
-            int(checkpoint.step), save_path) + Style.RESET_ALL)
+        print(
+            "✅ "
+            + Fore.CYAN
+            + "Saved checkpoint for step {}: {}".format(int(checkpoint.step), save_path)
+            + Style.RESET_ALL
+        )
 
         avg = np.mean(losses)
 
         print(
-            "\n📶 " + Fore.CYAN +
-            f"Average loss for epoch {epoch}/{int(args.EPOCHS)}: {avg}"
-            + Style.RESET_ALL)
+            "\n📶 "
+            + Fore.CYAN
+            + f"Average loss for epoch {epoch}/{int(args.EPOCHS)}: {avg}"
+            + Style.RESET_ALL
+        )
 
         print(
             "\n✅ "
@@ -133,9 +183,18 @@ def main_loop():
             + Style.RESET_ALL
         )
 
-    denoise_process(unet, denoising_method=args.DENOISING, total_timesteps=args.TOTAL_TIMESTEPS, inference_steps=args.INFERENCE_TIMESTEPS, verbose=args.VERBOSE, save_interval=args.SAVE_INTERVAL)
+    denoise_process(
+        unet,
+        denoising_method=args.DENOISING,
+        total_timesteps=args.TOTAL_TIMESTEPS,
+        inference_steps=args.INFERENCE_TIMESTEPS,
+        verbose=args.VERBOSE,
+        save_interval=args.SAVE_INTERVAL,
+        colab=args.COLAB,
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
 
         main_loop()

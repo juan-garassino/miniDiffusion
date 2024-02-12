@@ -56,14 +56,14 @@ def parse_arguments():
     return args
 
 
-def train_step(unet, batch, verbose=True):
+def train_step(unet, batch, colab=0, verbose=False):
     rng, tsrng = np.random.randint(0, 100000, size=(2,))
 
     if verbose:
         print("\n🔽 " + Fore.BLUE + f"RNG: {rng}, TSRNG: {tsrng}" + Style.RESET_ALL)
 
     timestep_values = generate_noising_timestamps(
-        tsrng, batch.shape[0], verbose=True
+        tsrng, batch.shape[0], verbose=verbose
     )  # ver aca como funciona esto
 
     if verbose:
@@ -74,7 +74,7 @@ def train_step(unet, batch, verbose=True):
             + Style.RESET_ALL
         )
 
-    noised_image, noise = forward_noise(rng, batch, timestep_values, verbose=True)
+    noised_image, noise = forward_noise(rng, batch, timestep_values, colab=colab, verbose=verbose)
 
     with GradientTape() as tape:
         prediction = unet(noised_image, timestep_values)
@@ -127,7 +127,7 @@ def main_loop():
         [1, 32, 32, 1]
     )  # initialize the model in the memory of our GPU
 
-    test_timestamps = generate_noising_timestamps(0, 1, verbose=True)
+    test_timestamps = generate_noising_timestamps(0, 1, verbose=args.VERBOSE)
 
     k = unet(test_images, test_timestamps)
 
@@ -150,7 +150,7 @@ def main_loop():
 
         for i, batch in enumerate(iter(dataset)):
             # run the training loop
-            loss = train_step(unet, batch, verbose=True)
+            loss = train_step(unet, batch, colab=args.COLAB, verbose=args.VERBOSE)
             losses.append(loss)
             bar.update(i, values=[("loss", loss)])
 
